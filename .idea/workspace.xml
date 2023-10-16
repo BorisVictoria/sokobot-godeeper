@@ -4,21 +4,50 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="c9ac0b84-0083-4e5d-9b65-d8018e4c8c4f" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/sokoban-godeeper.iml" afterDir="false" />
+    <list default="true" id="c9ac0b84-0083-4e5d-9b65-d8018e4c8c4f" name="Changes" comment="I like things that are deep">
+      <change afterPath="$PROJECT_DIR$/src/solver/Reach.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/solver/State.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sokoban-godeeper.iml" beforeDir="false" afterPath="$PROJECT_DIR$/sokoban-godeeper.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/Driver.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/Driver.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/solver/SokoBot.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/solver/SokoBot.java" afterDir="false" />
+    </list>
+    <list id="d2b630df-78b5-42b6-b669-e7800976e7d6" name="Changes by ASUS" comment="">
+      <change beforePath="$PROJECT_DIR$/src/solver/SokoBot.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/solver/SokoBot.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Class" />
+        <option value="Record" />
+      </list>
+    </option>
+  </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="LineStatusTrackerManager">
+    <file path="$PROJECT_DIR$/src/solver/SokoBot.java">
+      <ranges>
+        <range start1="2" end1="2" start2="2" end2="9" changelist="c9ac0b84-0083-4e5d-9b65-d8018e4c8c4f" />
+        <range start1="4" end1="8" start2="11" end2="17" changelist="c9ac0b84-0083-4e5d-9b65-d8018e4c8c4f" />
+        <range start1="9" end1="11" start2="18" end2="23" changelist="c9ac0b84-0083-4e5d-9b65-d8018e4c8c4f" />
+        <range start1="15" end1="16" start2="27" end2="56" changelist="c9ac0b84-0083-4e5d-9b65-d8018e4c8c4f" />
+        <range start1="17" end1="17" start2="57" end2="70" changelist="c9ac0b84-0083-4e5d-9b65-d8018e4c8c4f" />
+        <range start1="19" end1="19" start2="72" end2="420" changelist="d2b630df-78b5-42b6-b669-e7800976e7d6" />
+        <range start1="21" end1="21" start2="422" end2="424" changelist="d2b630df-78b5-42b6-b669-e7800976e7d6" />
+        <range start1="27" end1="27" start2="430" end2="473" changelist="d2b630df-78b5-42b6-b669-e7800976e7d6" />
+      </ranges>
+    </file>
+  </component>
+  <component name="ProblemsViewState">
+    <option name="selectedTabId" value="CurrentFile" />
   </component>
   <component name="ProjectColorInfo"><![CDATA[{
   "associatedIndex": 7
@@ -36,13 +65,15 @@
     "WebServerToolWindowFactoryState": "false",
     "codeWithMe.voiceChat.enabledByDefault": "false",
     "git-widget-placeholder": "master",
+    "last_opened_file_path": "C:/Users/Boris Victoria/IdeaProjects/sokoban-godeeper/src/solver/fastutil-8.5.12.jar",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
     "node.js.selected.package.tslint": "(autodetect)",
     "project.structure.last.edited": "Modules",
-    "project.structure.proportion": "0.0",
-    "project.structure.side.proportion": "0.0",
+    "project.structure.proportion": "0.15",
+    "project.structure.side.proportion": "0.2",
+    "settings.editor.selected.configurable": "Errors",
     "vue.rearranger.settings.migration": "true"
   }
 }]]></component>
@@ -54,11 +85,24 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1697448441353</updated>
-      <workItem from="1697448442369" duration="717000" />
+      <workItem from="1697448442369" duration="13693000" />
     </task>
+    <task id="LOCAL-00001" summary="I like things that are deep">
+      <option name="closed" value="true" />
+      <created>1697449251804</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1697449251804</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="I like things that are deep" />
+    <option name="LAST_COMMIT_MESSAGE" value="I like things that are deep" />
   </component>
 </project>
