@@ -6,26 +6,30 @@ public class State
     private Pos pos;
     private char[][] itemsData;
     private int heuristic;
-    private String path;
     private long hashCode;
     private Pos[] boxPositions;
 
     public State(Pos pos, char[][] itemsData, String path) 
     {
-        this.pos = new Pos(pos.x(), pos.y());
+        this.pos = pos;
+        this.startPos = pos;
         this.itemsData = itemsData;
-        this.path = path;
+        this.pushes = new ArrayDeque<>();
 
-        ArrayList<Pos> boxPositions= new ArrayList<>();
-        for(int i = 0; i < itemsData.length; i++) {
-            for(int j = 0; j < itemsData[0].length; i++) {
-                if(itemsData[i][j] == '$')
-                    boxPositions.add(new Pos(j, i));
+        this.boxes = new ArrayList<>();
+        int ctr = 0;
+        for(int i = 0; i < itemsData.length; i++)
+        {
+            for(int j = 0; j < itemsData[0].length; j++)
+            {
+                if (itemsData[i][j] == '$')
+                {
+                    boxes.add(new Box(ctr,new Pos(j,i)));
+                    ctr++;
+                }
+
             }
         }
-
-        // idk if this works
-        this.boxPositions = boxPositions.toArray(new Pos[0]);
 
 
         //this.heuristic = heuristic;
@@ -129,15 +133,20 @@ public class State
         }
     }
 
+    public Pos[] getBoxPositions()
+    {
+        Pos[] boxPositions = new Pos[boxes.size()];
+        for (int i = 0; i < boxes.size(); i++)
+        {
+            boxPositions[i] = boxes.get(i).boxPos();
+        }
 
-    public Pos[] getBoxPositions() {
         return boxPositions;
     }
 
     public Pos getPos() {
         return pos;
     }
-    
 
     public char[][] getItemsData() {
         return itemsData;
@@ -145,10 +154,6 @@ public class State
 
     public int getHeuristic() {
         return heuristic;
-    }
-
-    public String getPath() {
-        return path;
     }
 
     public long getHashCode() {

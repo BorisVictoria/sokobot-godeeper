@@ -1,6 +1,7 @@
 package solver;
 
-public record Pos(int x, int y) {
+public record Pos(int x, int y)
+{
     @Override
     public boolean equals(Object obj) {
         Pos pos2 = (Pos) obj;
