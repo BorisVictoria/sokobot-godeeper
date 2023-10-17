@@ -598,32 +598,32 @@ public class SokoBot {
             validPushes.add(new Push(boxPos, 'd'));
           } else System.out.println("freeze deadlock!");
         } else System.out.println("wall, crate, or deadtile encountered");
-        // check left
-        System.out.println("checking kaliwa!");
-        if(reachTiles.getTiles()[boxPos.y()][boxPos.x() + 1] == reachTiles.getStamp() && mapData[boxPos.y()][boxPos.x() - 1] != '#' && state.getItemsData()[boxPos.y()][boxPos.x() - 1] != '$' && !deadTiles[boxPos.y()][boxPos.x() - 1]) {
-          char[][] newItemsData = Arrays.stream(state.getItemsData()).map(char[]::clone).toArray(char[][]::new); //copy current items data
-          newItemsData[playerPos.y()][playerPos.x()] = ' '; //clear player
-          newItemsData[boxPos.y()][boxPos.x()] = '@'; //replace with player
-          newItemsData[boxPos.y()][boxPos.x() - 1] = '$'; //move box
-
-          char[][] check = Arrays.stream(newItemsData).map(char[]::clone).toArray(char[][]::new);
-          if (isSolvable(check, new Pos(boxPos.x() - 1, boxPos.y()))) {
-            validPushes.add(new Push(boxPos, 'l'));
-          } else System.out.println("freeze deadlock!");
-        } else System.out.println("wall, crate, or deadtile encountered");
-        // check right
-        System.out.println("checking kanan!");
-        if(reachTiles.getTiles()[boxPos.y()][boxPos.x() - 1] == reachTiles.getStamp() && mapData[boxPos.y()][boxPos.x() + 1] != '#' && state.getItemsData()[boxPos.y()][boxPos.x() + 1] != '$' && !deadTiles[boxPos.y()][boxPos.x() + 1]) {
-          char[][] newItemsData = Arrays.stream(state.getItemsData()).map(char[]::clone).toArray(char[][]::new); //copy current items data
-          newItemsData[playerPos.y()][playerPos.x()] = ' '; //clear player
-          newItemsData[boxPos.y()][boxPos.x()] = '@'; //replace with player
-          newItemsData[boxPos.y()][boxPos.x() + 1] = '$'; //move box
-
-          char[][] check = Arrays.stream(newItemsData).map(char[]::clone).toArray(char[][]::new);
-          if (isSolvable(check, new Pos(boxPos.x() + 1, boxPos.y()))) {
-            validPushes.add(new Push(boxPos, 'r'));
-          } else System.out.println("freeze deadlock!");
-        } else System.out.println("wall, crate, or deadtile encountered");
+//        // check left
+//        System.out.println("checking kaliwa!");
+//        if(reachTiles.getTiles()[boxPos.y()][boxPos.x() + 1] == reachTiles.getStamp() && mapData[boxPos.y()][boxPos.x() - 1] != '#' && state.getItemsData()[boxPos.y()][boxPos.x() - 1] != '$' && !deadTiles[boxPos.y()][boxPos.x() - 1]) {
+//          char[][] newItemsData = Arrays.stream(state.getItemsData()).map(char[]::clone).toArray(char[][]::new); //copy current items data
+//          newItemsData[playerPos.y()][playerPos.x()] = ' '; //clear player
+//          newItemsData[boxPos.y()][boxPos.x()] = '@'; //replace with player
+//          newItemsData[boxPos.y()][boxPos.x() - 1] = '$'; //move box
+//
+//          char[][] check = Arrays.stream(newItemsData).map(char[]::clone).toArray(char[][]::new);
+//          if (isSolvable(check, new Pos(boxPos.x() - 1, boxPos.y()))) {
+//            validPushes.add(new Push(boxPos, 'l'));
+//          } else System.out.println("freeze deadlock!");
+//        } else System.out.println("wall, crate, or deadtile encountered");
+//        // check right
+//        System.out.println("checking kanan!");
+//        if(reachTiles.getTiles()[boxPos.y()][boxPos.x() - 1] == reachTiles.getStamp() && mapData[boxPos.y()][boxPos.x() + 1] != '#' && state.getItemsData()[boxPos.y()][boxPos.x() + 1] != '$' && !deadTiles[boxPos.y()][boxPos.x() + 1]) {
+//          char[][] newItemsData = Arrays.stream(state.getItemsData()).map(char[]::clone).toArray(char[][]::new); //copy current items data
+//          newItemsData[playerPos.y()][playerPos.x()] = ' '; //clear player
+//          newItemsData[boxPos.y()][boxPos.x()] = '@'; //replace with player
+//          newItemsData[boxPos.y()][boxPos.x() + 1] = '$'; //move box
+//
+//          char[][] check = Arrays.stream(newItemsData).map(char[]::clone).toArray(char[][]::new);
+//          if (isSolvable(check, new Pos(boxPos.x() + 1, boxPos.y()))) {
+//            validPushes.add(new Push(boxPos, 'r'));
+//          } else System.out.println("freeze deadlock!");
+//        } else System.out.println("wall, crate, or deadtile encountered");
       }
     }
 
