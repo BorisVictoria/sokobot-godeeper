@@ -432,41 +432,57 @@ public class SokoBot {
 
 /*
 
-startTile;
-getValidMoves(startTile);
-pushAll(move); ul
-d = 0;
-d++;
+  visited.add(curState)
+
+  do {
+    ctr = 0
+    validMoves = validMoves(curState)
+    for (Push validMove: getValidMoves) {
+      if(!isVisited(checkMove(validMove))) {
+        moves.push(validMove)
+        ctr++
+      }
+    }
+    if(d < max && ctr > 0) {
+      move = moves.pop
+      dMove(move)
+      path.push(move)
+
+      if(isCurSolved) {
+        return getPath(path)
+      }
+
+      visited.add(curState)
+      d++
+    }
+    else {
+      doUnmove(path.pop)
+      d--
+    }
+  } while(!moves.isEmpty())
 
 
-if (d > 2)
-{
-getValidMoves(move.pop)
-doMove(move.pop)
-unmove.push(move.pop)
-if (!visited)
-
-d++
-}
 
 
-while(moveStack !empty) {
-  if(isSolved):
-    return unmoveStack
-  if(d > max):
-    doMove(unmove.pop)
-    d--
-  else:
-    validMoves = getValidMoves
-    for each valid move:
-      doMove(validMove)
-      if(isVisited)
-        doMove(unmove.pop)
-      else:
-        d++
 
 
-}
+  boolean DFS(curState, d, solution) {
+    if(isSolved)
+      return true
+
+    if (d > max)
+      return false
+
+    for(Push validMove : curState.getValidMoves)
+      dMove(Move)
+      if (DFS(d+1))
+        solution.append(push.getDir)
+        return true
+      else
+        unmove(push.getDir)
+
+    return false
+  }
 
 
 
