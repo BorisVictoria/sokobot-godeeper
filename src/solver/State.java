@@ -7,7 +7,11 @@ public class State
     private char[][] itemsData;
     private int heuristic;
     private long hashCode;
-    private Pos[] boxPositions;
+    private ArrayList<Box> boxes;
+    private ArrayDeque<Push> pushes;
+
+    private Pos startPos;
+
 
     public State(Pos pos, char[][] itemsData, String path) 
     {
@@ -36,101 +40,103 @@ public class State
         //this.hashCode = hashCode;
     }
 
-    public void playerUp() {
-        itemsData[pos.y()][pos.x()] = ' ';
+    public void move(Push push) {
 
-        if(itemsData[pos.y() - 1][pos.x()] == '$') {
-            itemsData[pos.y() - 2][pos.x()] = '$';
+        int boxid = 0;
+        for(int i = 0; i < boxes.size(); i++) {
+            if(boxes.get(i).boxPos() == push.pos()) {
+                boxid = i;
+                break;
+            }
         }
 
-        itemsData[pos.y() - 1][pos.x()] = '@';
+        boxes.remove(boxid);
 
-        pos = new Pos(pos.x(), pos.y() - 1);
-    }
-
-    public void playerDown() {
+        //clear position of box to be moved
+        itemsData[push.pos().y()][push.pos().x()] = ' ';
+        //clear current position of player
         itemsData[pos.y()][pos.x()] = ' ';
 
-        if(itemsData[pos.y() + 1][pos.x()] == '$') {
-            itemsData[pos.y() + 2][pos.x()] = '$';
+        char dir = push.dir();
+
+        //move box to push + dir
+        if(dir == 'u') {
+            itemsData[push.pos().y() - 1][push.pos().x()] = '$';
+            boxes.add(boxid, new Box(boxid, new Pos(push.pos().x(), push.pos().y() - 1)));
+        }
+        else if(dir == 'd') {
+            itemsData[push.pos().y() + 1][push.pos().x()] = '$';
+            boxes.add(boxid, new Box(boxid, new Pos(push.pos().x(), push.pos().y() + 1)));
+        }
+        else if(dir == 'l') {
+            itemsData[push.pos().y()][push.pos().x() - 1] = '$';
+            boxes.add(boxid, new Box(boxid, new Pos(push.pos().x() - 1, push.pos().y())));
+        }
+        else if(dir == 'r') {
+            itemsData[push.pos().y()][push.pos().x() + 1] = '$';
+            boxes.add(boxid, new Box(boxid, new Pos(push.pos().x() + 1, push.pos().y())));
         }
 
-        itemsData[pos.y() + 1][pos.x()] = '@';
+        //player must be where box was
+        itemsData[push.pos().y()][push.pos().x()] = '@';
+        pos = new Pos(push.pos().x(), push.pos().y());
 
-        pos = new Pos(pos.x(), pos.y() + 1);
-    }
-
-    public void playerLeft() {
-        itemsData[pos.y()][pos.x()] = ' ';
-
-        if(itemsData[pos.y()][pos.x() - 1] == '$') {
-            itemsData[pos.y()][pos.x() - 2] = '$';
-        }
-
-        itemsData[pos.y()][pos.x() - 1] = '@';
-
-        pos = new Pos(pos.x() - 1, pos.y());
-    }
-
-    public void playerRight() {
-        itemsData[pos.y()][pos.x()] = ' ';
-
-        if(itemsData[pos.y()][pos.x() + 1] == '$') {
-            itemsData[pos.y()][pos.x() + 2] = '$';
-        }
-
-        itemsData[pos.y()][pos.x() + 1] = '@';
-
-        pos = new Pos(pos.x() + 1, pos.y());
+        pushes.add(push);
     }
 
     public void unmove() {
-        char dir = path.charAt(path.length() - 1);
+        Push lastPush = pushes.pollLast();
 
-        if(dir == 'u') {
-            itemsData[pos.y()][pos.x()] = ' ';
+        Pos lastPushPos = lastPush.pos();
+        itemsData[lastPushPos.y()][lastPushPos.x()] = '$';
 
-            if(itemsData[pos.y() - 1][pos.x()] == '$') {
-                itemsData[pos.y()][pos.x()] = '$';
+        // clearing box
+        if(lastPush.dir() == 'u') {
+            itemsData[lastPushPos.y() - 1][lastPushPos.x()] = ' ';
+        }
+        else if(lastPush.dir() == 'd') {
+            itemsData[lastPushPos.y() + 1][lastPushPos.x()] = ' ';
+        }
+        else if(lastPush.dir() == 'l') {
+            itemsData[lastPushPos.y()][lastPushPos.x() - 1] = ' ';
+
+        }
+        else if(lastPush.dir() == 'r') {
+            itemsData[lastPushPos.y()][lastPushPos.x() + 1] = ' ';
+
+        }
+
+        if(!pushes.isEmpty()) {
+            Push lastMinusOne = pushes.pollLast();
+            Pos lastMinusOnePos = lastMinusOne.pos();
+
+            if(lastMinusOne.dir() == 'u') {
+                itemsData[lastMinusOnePos.y() + 1][lastMinusOnePos.x()] = '@';
+                pos = new Pos(lastMinusOnePos.x(), lastMinusOnePos.y() + 1);
+            }
+            else if(lastMinusOne.dir() == 'd') {
+                itemsData[lastMinusOnePos.y() - 1][lastMinusOnePos.x()] = '@';
+                pos = new Pos(lastMinusOnePos.x(), lastMinusOnePos.y() - 1);
+            }
+            else if(lastMinusOne.dir() == 'l') {
+                itemsData[lastMinusOnePos.y()][lastMinusOnePos.x() + 1] = '@';
+                pos = new Pos(lastMinusOnePos.x() + 1, lastMinusOnePos.x());
+            }
+            else if(lastMinusOne.dir() == 'r') {
+                itemsData[lastMinusOnePos.y()][lastMinusOnePos.x() - 1] = '@';
+                pos = new Pos(lastMinusOnePos.x() - 1, lastMinusOnePos.y());
             }
 
-            itemsData[pos.y() + 1][pos.x()] = '@';
-
-            pos = new Pos(pos.x(), pos.y() - 1);
+            pushes.offerLast(lastMinusOne);
         }
-        if(dir == 'd') {
-            itemsData[pos.y()][pos.x()] = ' ';
-
-            if(itemsData[pos.y() + 1][pos.x()] == '$') {
-                itemsData[pos.y()][pos.x()] = '$';
-            }
-
-            itemsData[pos.y() - 1][pos.x()] = '@';
-
-            pos = new Pos(pos.x(), pos.y() + 1);
+        else {
+            itemsData[startPos.y()][startPos.x()] = '@';
+            pos = new Pos(startPos.x(), startPos.y());
         }
-        if(dir == 'l') {
-            itemsData[pos.y()][pos.x()] = ' ';
+    }
 
-            if(itemsData[pos.y()][pos.x() - 1] == '$') {
-                itemsData[pos.y()][pos.x()] = '$';
-            }
-
-            itemsData[pos.y()][pos.x() + 1] = '@';
-
-            pos = new Pos(pos.x() - 1, pos.y());
-        }
-        if(dir == 'r') {
-            itemsData[pos.y()][pos.x()] = ' ';
-
-            if(itemsData[pos.y()][pos.x() + 1] == '$') {
-                itemsData[pos.y()][pos.x()] = '$';
-            }
-
-            itemsData[pos.y()][pos.x() - 1] = '@';
-
-            pos = new Pos(pos.x() + 1, pos.y());
-        }
+    public ArrayDeque<Push> getPushes() {
+        return this.pushes;
     }
 
     public Pos[] getBoxPositions()

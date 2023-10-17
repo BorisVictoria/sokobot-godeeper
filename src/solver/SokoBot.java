@@ -13,7 +13,7 @@ public class SokoBot {
   private final int width;
   private final int height;
   private final char[][] mapData;
-  private final long[][][] zobrist;
+  private final long[][][] zobristTable;
   private final State state;
   private final State initialState;
   private final ObjectArrayList<Pos> goals;
@@ -21,14 +21,19 @@ public class SokoBot {
   private final int numGoals;
   private Reach reachTiles;
   private final boolean[][] deadTiles;
+  private final LongOpenHashSet visitedStates;
+
+  private int maxDepth;
+  private String solution;
 
   public SokoBot(int width, int height, char[][] mapData, char[][] itemsData) {
 
     this.width = width;
     this.height = height;
     this.mapData = mapData;
-    this.zobrist = new long[2][height][width];
+    this.zobristTable = new long[2][height][width];
     this.goals = new ObjectArrayList<>();
+    visitedStates = new LongOpenHashSet();
 
     Random rand = new Random();
 
@@ -38,7 +43,7 @@ public class SokoBot {
       {
         for(int k = 0; k < width; k++)
         {
-          zobrist[i][j][k] = rand.nextLong();
+          zobristTable[i][j][k] = rand.nextLong();
         }
       }
     }
@@ -73,6 +78,11 @@ public class SokoBot {
     reachTiles = new Reach(height, width);
     clear();
     deadTiles = getDeadTiles();
+
+    maxDepth = 2;
+
+    solution = "";
+
   }
 
   public boolean isPullValid(Pos pos, char dir) {
