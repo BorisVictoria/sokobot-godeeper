@@ -1,5 +1,5 @@
 package solver;
 
-public record Push(Pos pos, char dir) {
+public record Push(int id, char dir) {
 
 }

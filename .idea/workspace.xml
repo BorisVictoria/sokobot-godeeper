@@ -5,12 +5,16 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="c9ac0b84-0083-4e5d-9b65-d8018e4c8c4f" name="Changes" comment="centrum bottle deep">
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/maps/big.txt" beforeDir="false" afterPath="$PROJECT_DIR$/maps/big.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/Driver.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/Driver.java" afterDir="false" />
-    </list>
-    <list id="d2b630df-78b5-42b6-b669-e7800976e7d6" name="Changes by ASUS" comment="Changes by ASUS">
+      <change beforePath="$PROJECT_DIR$/src/reader/MapData.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/solver/Push.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/solver/Push.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/solver/SokoBot.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/solver/SokoBot.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/solver/State.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/solver/State.java" afterDir="false" />
     </list>
+    <list id="d2b630df-78b5-42b6-b669-e7800976e7d6" name="Changes by ASUS" comment="Changes by ASUS" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -77,6 +81,7 @@
       <workItem from="1697475034583" duration="41000" />
       <workItem from="1697520020059" duration="775000" />
       <workItem from="1697523606120" duration="23824000" />
+      <workItem from="1697600961721" duration="16162000" />
     </task>
     <task id="LOCAL-00001" summary="I like things that are deep">
       <option name="closed" value="true" />

@@ -1,9 +1,6 @@
 package solver;
 
-import java.awt.image.AreaAveragingScaleFilter;
-import java.sql.SQLOutput;
 import java.util.*;
-import it.unimi.dsi.fastutil.Hash;
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 import it.unimi.dsi.fastutil.objects.ObjectArrayFIFOQueue;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
@@ -79,7 +76,7 @@ public class SokoBot {
     clear();
     deadTiles = getDeadTiles();
 
-    maxDepth = 2;
+    maxDepth = 1000;
 
     solution = "";
 
@@ -255,7 +252,6 @@ public class SokoBot {
 
     if (isBlocked(nextItemsData, movedBox))
     {
-//    System.out.println("is Deadlock?: " + !(mapData[movedBox[1]][movedBox[0]] == '.'));
       return mapData[movedBox.y()][movedBox.x()] == '.';
     }
 
@@ -281,7 +277,7 @@ public class SokoBot {
     }
   }
 
-  public void calculateReach(Pos start, char[][] itemsData)
+  public Pos calculateReach(Pos start, char[][] itemsData)
   {
     //Reset before overflow
     if (reachTiles.getStamp() >= Integer.MAX_VALUE - 2)
@@ -368,6 +364,8 @@ public class SokoBot {
       }
 
     }
+    
+    return reachTiles.getMin();
 
   }
 
@@ -535,10 +533,11 @@ public class SokoBot {
     calculateReach(state.getPos(), state.getItemsData());
     ArrayList<Push> validPushes = getValidPushes();
 
-
     for(int i = 0; i < validPushes.size(); i++)
     {
       char dir = validPushes.get(i).dir();
+      int id = validPushes.get(i).id();
+
       calculateReach(state.getPos(), state.getItemsData());
 
 //      for (int i = 0; i < height; i++)
@@ -553,7 +552,7 @@ public class SokoBot {
 //          System.out.println();
 //        }
 
-      System.out.println(validPushes.get(i).pos().x() + " " + validPushes.get(i).pos().y() + " " + dir);
+      System.out.println("Box: " + id + " " + state.getBoxPositions().get(id).boxPos().x() + " " + state.getBoxPositions().get(id).boxPos().y() + " " + dir);
 
       visitedStates.add(calculateHash());
       System.out.println("moving");
@@ -561,11 +560,22 @@ public class SokoBot {
 
       System.out.println("going deeper!");
       if(goDeeper(depth + 1)) {
+        //state.getSolution().add(validPushes.get(i));
         return true;
       }
       else {
-        System.out.println("unmoving");
         state.unmove();
+        System.out.println("unmoved cur state");
+        for (int j = 0; j < height; j++)
+        {
+          for (int k = 0; k < width; k++)
+          {
+            if (state.getItemsData()[j][k] == ' ')
+              System.out.print(mapData[j][k]);
+            else System.out.print(state.getItemsData()[j][k]);
+          }
+          System.out.println();
+        }
       }
 
     }
@@ -575,66 +585,68 @@ public class SokoBot {
   }
 
   public ArrayList<Push> getValidPushes() {
-    Pos[] boxPositions = state.getBoxPositions();
+    ArrayList<Box> boxPositions = state.getBoxPositions();
     Pos playerPos = state.getPos();
     ArrayList<Push> validPushes = new ArrayList<>();
 
+    for(Box box : boxPositions) {
 
-    for(Pos boxPos : boxPositions) {
-      if(reachTiles.getTiles()[boxPos.y()][boxPos.x()] == reachTiles.getStamp() + 1) {
+      if(reachTiles.getTiles()[box.boxPos().y()][box.boxPos().x()] == reachTiles.getStamp() + 1)
+      {
+        System.out.println("Box " + box.id() + " " + box.boxPos().x() + " " + box.boxPos().y());
         // check up
         System.out.println("checking taas!");
-        if(reachTiles.getTiles()[boxPos.y() + 1][boxPos.x()] == reachTiles.getStamp() && mapData[boxPos.y() - 1][boxPos.x()] != '#' && state.getItemsData()[boxPos.y()-1][boxPos.x()] != '$' && !deadTiles[boxPos.y()-1][boxPos.x()]) {
+        if(reachTiles.getTiles()[box.boxPos().y() + 1][box.boxPos().x()] == reachTiles.getStamp() && mapData[box.boxPos().y() - 1][box.boxPos().x()] != '#' && state.getItemsData()[box.boxPos().y()-1][box.boxPos().x()] != '$' && !deadTiles[box.boxPos().y()-1][box.boxPos().x()]) {
           char[][] newItemsData = Arrays.stream(state.getItemsData()).map(char[]::clone).toArray(char[][]::new); //copy current items data
           newItemsData[playerPos.y()][playerPos.x()] = ' '; //clear player
-          newItemsData[boxPos.y()][boxPos.x()] = '@'; //replace with player
-          newItemsData[boxPos.y() - 1][boxPos.x()] = '$'; //move box
+          newItemsData[box.boxPos().y()][box.boxPos().x()] = '@'; //replace with player
+          newItemsData[box.boxPos().y() - 1][box.boxPos().x()] = '$'; //move box
 
-          char[][] check = Arrays.stream(newItemsData).map(char[]::clone).toArray(char[][]::new);
-          if (isSolvable(check, new Pos(boxPos.x(), boxPos.y() - 1))) {
-            validPushes.add(new Push(boxPos, 'u'));
+          if (isSolvable(newItemsData, new Pos(box.boxPos().x(), box.boxPos().y() - 1))) {
+            validPushes.add(new Push(box.id(), 'u'));
           } else System.out.println("freeze deadlock!");
         } else System.out.println("wall, crate, or deadtile encountered");
         // check down
         System.out.println("checking baba!");
-        if(reachTiles.getTiles()[boxPos.y() - 1][boxPos.x()] == reachTiles.getStamp() && mapData[boxPos.y() + 1][boxPos.x()] != '#' && state.getItemsData()[boxPos.y() + 1][boxPos.x()] != '$' && !deadTiles[boxPos.y() + 1][boxPos.x()]) {
+        if(reachTiles.getTiles()[box.boxPos().y() - 1][box.boxPos().x()] == reachTiles.getStamp() && mapData[box.boxPos().y() + 1][box.boxPos().x()] != '#' && state.getItemsData()[box.boxPos().y() + 1][box.boxPos().x()] != '$' && !deadTiles[box.boxPos().y() + 1][box.boxPos().x()])
+        {
           char[][] newItemsData = Arrays.stream(state.getItemsData()).map(char[]::clone).toArray(char[][]::new); //copy current items data
           newItemsData[playerPos.y()][playerPos.x()] = ' '; //clear player
-          newItemsData[boxPos.y()][boxPos.x()] = '@'; //replace with player
-          newItemsData[boxPos.y() + 1][boxPos.x()] = '$'; //move box
+          newItemsData[box.boxPos().y()][box.boxPos().x()] = '@'; //replace with player
+          newItemsData[box.boxPos().y() + 1][box.boxPos().x()] = '$'; //move box
 
-          char[][] check = Arrays.stream(newItemsData).map(char[]::clone).toArray(char[][]::new);
-          if (isSolvable(check, new Pos(boxPos.x(), boxPos.y() + 1))) {
-            validPushes.add(new Push(boxPos, 'd'));
+          if (isSolvable(newItemsData, new Pos(box.boxPos().x(), box.boxPos().y() + 1))) {
+            validPushes.add(new Push(box.id(), 'd'));
           } else System.out.println("freeze deadlock!");
         } else System.out.println("wall, crate, or deadtile encountered");
-//        // check left
-//        System.out.println("checking kaliwa!");
-//        if(reachTiles.getTiles()[boxPos.y()][boxPos.x() + 1] == reachTiles.getStamp() && mapData[boxPos.y()][boxPos.x() - 1] != '#' && state.getItemsData()[boxPos.y()][boxPos.x() - 1] != '$' && !deadTiles[boxPos.y()][boxPos.x() - 1]) {
-//          char[][] newItemsData = Arrays.stream(state.getItemsData()).map(char[]::clone).toArray(char[][]::new); //copy current items data
-//          newItemsData[playerPos.y()][playerPos.x()] = ' '; //clear player
-//          newItemsData[boxPos.y()][boxPos.x()] = '@'; //replace with player
-//          newItemsData[boxPos.y()][boxPos.x() - 1] = '$'; //move box
-//
-//          char[][] check = Arrays.stream(newItemsData).map(char[]::clone).toArray(char[][]::new);
-//          if (isSolvable(check, new Pos(boxPos.x() - 1, boxPos.y()))) {
-//            validPushes.add(new Push(boxPos, 'l'));
-//          } else System.out.println("freeze deadlock!");
-//        } else System.out.println("wall, crate, or deadtile encountered");
-//        // check right
-//        System.out.println("checking kanan!");
-//        if(reachTiles.getTiles()[boxPos.y()][boxPos.x() - 1] == reachTiles.getStamp() && mapData[boxPos.y()][boxPos.x() + 1] != '#' && state.getItemsData()[boxPos.y()][boxPos.x() + 1] != '$' && !deadTiles[boxPos.y()][boxPos.x() + 1]) {
-//          char[][] newItemsData = Arrays.stream(state.getItemsData()).map(char[]::clone).toArray(char[][]::new); //copy current items data
-//          newItemsData[playerPos.y()][playerPos.x()] = ' '; //clear player
-//          newItemsData[boxPos.y()][boxPos.x()] = '@'; //replace with player
-//          newItemsData[boxPos.y()][boxPos.x() + 1] = '$'; //move box
-//
-//          char[][] check = Arrays.stream(newItemsData).map(char[]::clone).toArray(char[][]::new);
-//          if (isSolvable(check, new Pos(boxPos.x() + 1, boxPos.y()))) {
-//            validPushes.add(new Push(boxPos, 'r'));
-//          } else System.out.println("freeze deadlock!");
-//        } else System.out.println("wall, crate, or deadtile encountered");
-      }
+        // check left
+        System.out.println("checking kaliwa!");
+        if(reachTiles.getTiles()[box.boxPos().y()][box.boxPos().x() + 1] == reachTiles.getStamp() && mapData[box.boxPos().y()][box.boxPos().x() - 1] != '#' && state.getItemsData()[box.boxPos().y()][box.boxPos().x() - 1] != '$' && !deadTiles[box.boxPos().y()][box.boxPos().x() - 1])
+        {
+          char[][] newItemsData = Arrays.stream(state.getItemsData()).map(char[]::clone).toArray(char[][]::new); //copy current items data
+          newItemsData[playerPos.y()][playerPos.x()] = ' '; //clear player
+          newItemsData[box.boxPos().y()][box.boxPos().x()] = '@'; //replace with player
+          newItemsData[box.boxPos().y()][box.boxPos().x() - 1] = '$'; //move box
+
+          if (isSolvable(newItemsData, new Pos(box.boxPos().x() - 1, box.boxPos().y()))) {
+            validPushes.add(new Push(box.id(), 'l'));
+          } else System.out.println("freeze deadlock!");
+        } else System.out.println("wall, crate, or deadtile encountered");
+        // check right
+        System.out.println("checking kanan!");
+        if(reachTiles.getTiles()[box.boxPos().y()][box.boxPos().x() - 1] == reachTiles.getStamp() && mapData[box.boxPos().y()][box.boxPos().x() + 1] != '#' && state.getItemsData()[box.boxPos().y()][box.boxPos().x() + 1] != '$' && !deadTiles[box.boxPos().y()][box.boxPos().x() + 1])
+        {
+          char[][] newItemsData = Arrays.stream(state.getItemsData()).map(char[]::clone).toArray(char[][]::new); //copy current items data
+          newItemsData[playerPos.y()][playerPos.x()] = ' '; //clear player
+          newItemsData[box.boxPos().y()][box.boxPos().x()] = '@'; //replace with player
+          newItemsData[box.boxPos().y()][box.boxPos().x() + 1] = '$'; //move box
+
+          if (isSolvable(newItemsData, new Pos(box.boxPos().x() + 1, box.boxPos().y()))) {
+            validPushes.add(new Push(box.id(), 'r'));
+          } else System.out.println("freeze deadlock!");
+        } else System.out.println("wall, crate, or deadtile encountered");
+      } else System.out.println("box is unreachable");
+      System.out.println();
     }
 
     return validPushes;
@@ -645,41 +657,34 @@ public class SokoBot {
   {
     if (goDeeper(0))
     {
+      //Stack<Push> pushes = state.getSolution();
       ArrayDeque<Push> pushes = state.getPushes();
+      System.out.println(pushes.size());
 
+//      while(!pushes.isEmpty())
+//      {
+//        Push push = pushes.poll();
+//        System.out.println("Box " + push.id() + " " + push.dir());
+//      }
       while (!pushes.isEmpty())
       {
         System.out.println("calculating path of push");
-        Push curPush = pushes.poll();
-
-        initialState.getItemsData()[initialState.getPos().y()][initialState.getPos().x()] = ' '; //clear player
-        initialState.getItemsData()[curPush.pos().y()][curPush.pos().x()] = '@'; //replace with player
-        if (curPush.dir() == 'u')
-        {
-          solution += calculatePath(initialState.getPos(), new Pos(curPush.pos().x(), curPush.pos().y() + 1)) + "u";
-          initialState.getItemsData()[curPush.pos().y()-1][curPush.pos().x()] = '$'; //move box
-
-        }
-
-        else if (curPush.dir() == 'd')
-        {
-          solution += calculatePath(initialState.getPos(), new Pos(curPush.pos().x(), curPush.pos().y() - 1)) + "d";
-          initialState.getItemsData()[curPush.pos().y()+1][curPush.pos().x()] = '$'; //move box
-
-        }
-
-        else if (curPush.dir() == 'l')
-        {
-          solution += calculatePath(initialState.getPos(), new Pos(curPush.pos().x() + 1, curPush.pos().y())) + "l";
-          initialState.getItemsData()[curPush.pos().y()][curPush.pos().x()-1] = '$'; //move box
-
-        }
+        Push push = pushes.poll();
+        calculateReach(initialState.getPos(), initialState.getItemsData());
 
 
-        else if (curPush.dir() == 'r')
-        {
-          solution += calculatePath(initialState.getPos(), new Pos(curPush.pos().x() - 1, curPush.pos().y())) + "r";
-          initialState.getItemsData()[curPush.pos().y()][curPush.pos().x()+1] = '$'; //move box
+
+        if (dir == 'u') {
+
+          System.out.println("Cur sol: " + solution);
+        } else if (dir == 'd') {
+
+          System.out.println("Cur sol: " + solution);
+        } else if (dir == 'l') {
+
+
+        } else if (dir == 'r') {
+
 
         }
       }
