@@ -364,7 +364,7 @@ public class SokoBot {
       }
 
     }
-    
+
     return reachTiles.getMin();
 
   }
