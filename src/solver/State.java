@@ -10,16 +10,16 @@ public class State
     private long hashCode;
     private ArrayList<Box> boxes;
     private ArrayDeque<Push> pushes;
-    private Stack<Push> solution;
+    private Pos normal;
 
     public State(Pos pos, char[][] itemsData, String path) 
     {
         this.pos = pos;
-        this.startPos = new Pos(pos.y(), pos.x());
+        this.startPos = new Pos(pos.x(), pos.y());
+        this.normal = new Pos(pos.x(), pos.y());
         this.itemsData = itemsData;
-        this.pushes = new ArrayDeque<>();
+        this.pushes = new ArrayDeque<>(1000);
         this.boxes = new ArrayList<>();
-        this.solution = new Stack<>();
         int ctr = 0;
         for(int i = 0; i < itemsData.length; i++)
         {
@@ -179,7 +179,47 @@ public class State
         return hashCode;
     }
 
-    public Stack<Push> getSolution() {
-        return solution;
+    public Pos getNormal() {
+        return normal;
+    }
+    public void setNormal(Pos normal) {
+        this.normal = normal;
+    }
+
+    public void moveInitial(Push push)
+    {
+
+        //get box referenced by id
+        Pos boxPos = boxes.get(push.id()).boxPos();
+        char dir = push.dir();
+
+        //clear position of current box and replace with player
+        itemsData[boxPos.y()][boxPos.x()] = '@';
+        itemsData[pos.y()][pos.x()] = ' ';
+        this.pos = new Pos(boxPos.x(), boxPos.y());
+
+        //push box according to direction
+        if (dir == 'u')
+        {
+            itemsData[boxPos.y()-1][boxPos.x()] = '$';
+            boxes.set(push.id(), new Box(push.id(), new Pos(boxPos.x(), boxPos.y()-1)));
+
+        }
+        else if (dir == 'd')
+        {
+            itemsData[boxPos.y()+1][boxPos.x()] = '$';
+            boxes.set(push.id(), new Box(push.id(), new Pos(boxPos.x(), boxPos.y()+1)));
+        }
+        else if (dir == 'l')
+        {
+            itemsData[boxPos.y()][boxPos.x()-1] = '$';
+            boxes.set(push.id(), new Box(push.id(), new Pos(boxPos.x()-1, boxPos.y())));
+        }
+        else if (dir == 'r')
+        {
+            itemsData[boxPos.y()][boxPos.x()+1] = '$';
+            boxes.set(push.id(), new Box(push.id(), new Pos(boxPos.x()+1, boxPos.y())));
+        }
+
     }
 }

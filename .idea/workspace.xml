@@ -4,17 +4,16 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="c9ac0b84-0083-4e5d-9b65-d8018e4c8c4f" name="Changes" comment="centrum bottle deep">
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+    <list default="true" id="c9ac0b84-0083-4e5d-9b65-d8018e4c8c4f" name="Changes" comment="centrum 100 tablets bottle deep">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/maps/big.txt" beforeDir="false" afterPath="$PROJECT_DIR$/maps/big.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/Driver.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/Driver.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/reader/MapData.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/solver/Push.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/solver/Push.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/solver/SokoBot.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/solver/SokoBot.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/solver/State.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/solver/State.java" afterDir="false" />
     </list>
-    <list id="d2b630df-78b5-42b6-b669-e7800976e7d6" name="Changes by ASUS" comment="Changes by ASUS" />
+    <list id="d2b630df-78b5-42b6-b669-e7800976e7d6" name="Changes by ASUS" comment="Changes by ASUS">
+      <change beforePath="$PROJECT_DIR$/src/solver/SokoBot.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/solver/SokoBot.java" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -31,8 +30,59 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
+  <component name="LineStatusTrackerManager">
+    <file path="$PROJECT_DIR$/src/solver/SokoBot.java">
+      <ranges>
+        <range start1="24" end1="24" start2="24" end2="26" changelist="c9ac0b84-0083-4e5d-9b65-d8018e4c8c4f" />
+        <range start1="72" end1="73" start2="74" end2="78" changelist="c9ac0b84-0083-4e5d-9b65-d8018e4c8c4f" />
+        <range start1="82" end1="82" start2="87" end2="88" changelist="c9ac0b84-0083-4e5d-9b65-d8018e4c8c4f" />
+        <range start1="114" end1="115" start2="120" end2="122" changelist="c9ac0b84-0083-4e5d-9b65-d8018e4c8c4f" />
+        <range start1="125" end1="126" start2="132" end2="134" changelist="c9ac0b84-0083-4e5d-9b65-d8018e4c8c4f" />
+        <range start1="162" end1="163" start2="170" end2="172" changelist="c9ac0b84-0083-4e5d-9b65-d8018e4c8c4f" />
+        <range start1="166" end1="175" start2="175" end2="175" changelist="c9ac0b84-0083-4e5d-9b65-d8018e4c8c4f" />
+        <range start1="366" end1="367" start2="366" end2="367" changelist="d2b630df-78b5-42b6-b669-e7800976e7d6" />
+        <range start1="376" end1="376" start2="376" end2="378" changelist="c9ac0b84-0083-4e5d-9b65-d8018e4c8c4f" />
+        <range start1="502" end1="502" start2="504" end2="507" changelist="c9ac0b84-0083-4e5d-9b65-d8018e4c8c4f" />
+        <range start1="503" end1="503" start2="508" end2="513" changelist="c9ac0b84-0083-4e5d-9b65-d8018e4c8c4f" />
+        <range start1="505" end1="516" start2="515" end2="527" changelist="c9ac0b84-0083-4e5d-9b65-d8018e4c8c4f" />
+        <range start1="523" end1="524" start2="534" end2="535" changelist="c9ac0b84-0083-4e5d-9b65-d8018e4c8c4f" />
+        <range start1="528" end1="529" start2="539" end2="540" changelist="c9ac0b84-0083-4e5d-9b65-d8018e4c8c4f" />
+        <range start1="532" end1="533" start2="543" end2="544" changelist="c9ac0b84-0083-4e5d-9b65-d8018e4c8c4f" />
+        <range start1="539" end1="543" start2="550" end2="553" changelist="c9ac0b84-0083-4e5d-9b65-d8018e4c8c4f" />
+        <range start1="544" end1="545" start2="554" end2="555" changelist="c9ac0b84-0083-4e5d-9b65-d8018e4c8c4f" />
+        <range start1="546" end1="547" start2="556" end2="557" changelist="c9ac0b84-0083-4e5d-9b65-d8018e4c8c4f" />
+        <range start1="549" end1="550" start2="559" end2="560" changelist="c9ac0b84-0083-4e5d-9b65-d8018e4c8c4f" />
+        <range start1="554" end1="556" start2="564" end2="565" changelist="c9ac0b84-0083-4e5d-9b65-d8018e4c8c4f" />
+        <range start1="557" end1="558" start2="566" end2="567" changelist="c9ac0b84-0083-4e5d-9b65-d8018e4c8c4f" />
+        <range start1="560" end1="561" start2="569" end2="570" changelist="c9ac0b84-0083-4e5d-9b65-d8018e4c8c4f" />
+        <range start1="562" end1="563" start2="571" end2="571" changelist="c9ac0b84-0083-4e5d-9b65-d8018e4c8c4f" />
+        <range start1="567" end1="578" start2="575" end2="586" changelist="c9ac0b84-0083-4e5d-9b65-d8018e4c8c4f" />
+        <range start1="579" end1="580" start2="587" end2="587" changelist="c9ac0b84-0083-4e5d-9b65-d8018e4c8c4f" />
+        <range start1="581" end1="583" start2="588" end2="589" changelist="c9ac0b84-0083-4e5d-9b65-d8018e4c8c4f" />
+        <range start1="592" end1="593" start2="598" end2="599" changelist="c9ac0b84-0083-4e5d-9b65-d8018e4c8c4f" />
+        <range start1="595" end1="596" start2="601" end2="602" changelist="c9ac0b84-0083-4e5d-9b65-d8018e4c8c4f" />
+        <range start1="597" end1="598" start2="603" end2="604" changelist="c9ac0b84-0083-4e5d-9b65-d8018e4c8c4f" />
+        <range start1="606" end1="608" start2="612" end2="614" changelist="c9ac0b84-0083-4e5d-9b65-d8018e4c8c4f" />
+        <range start1="609" end1="610" start2="615" end2="616" changelist="c9ac0b84-0083-4e5d-9b65-d8018e4c8c4f" />
+        <range start1="619" end1="621" start2="625" end2="627" changelist="c9ac0b84-0083-4e5d-9b65-d8018e4c8c4f" />
+        <range start1="622" end1="623" start2="628" end2="629" changelist="c9ac0b84-0083-4e5d-9b65-d8018e4c8c4f" />
+        <range start1="632" end1="634" start2="638" end2="640" changelist="c9ac0b84-0083-4e5d-9b65-d8018e4c8c4f" />
+        <range start1="635" end1="636" start2="641" end2="642" changelist="c9ac0b84-0083-4e5d-9b65-d8018e4c8c4f" />
+        <range start1="645" end1="649" start2="651" end2="655" changelist="c9ac0b84-0083-4e5d-9b65-d8018e4c8c4f" />
+        <range start1="657" end1="657" start2="663" end2="675" changelist="c9ac0b84-0083-4e5d-9b65-d8018e4c8c4f" />
+        <range start1="662" end1="662" start2="680" end2="682" changelist="c9ac0b84-0083-4e5d-9b65-d8018e4c8c4f" />
+        <range start1="670" end1="672" start2="690" end2="702" changelist="c9ac0b84-0083-4e5d-9b65-d8018e4c8c4f" />
+        <range start1="673" end1="686" start2="703" end2="706" changelist="c9ac0b84-0083-4e5d-9b65-d8018e4c8c4f" />
+        <range start1="687" end1="688" start2="707" end2="715" changelist="c9ac0b84-0083-4e5d-9b65-d8018e4c8c4f" />
+        <range start1="689" end1="689" start2="716" end2="721" changelist="c9ac0b84-0083-4e5d-9b65-d8018e4c8c4f" />
+        <range start1="692" end1="692" start2="724" end2="736" changelist="c9ac0b84-0083-4e5d-9b65-d8018e4c8c4f" />
+        <range start1="704" end1="742" start2="748" end2="748" changelist="c9ac0b84-0083-4e5d-9b65-d8018e4c8c4f" />
+        <range start1="744" end1="745" start2="750" end2="750" changelist="c9ac0b84-0083-4e5d-9b65-d8018e4c8c4f" />
+      </ranges>
+    </file>
+  </component>
   <component name="ProblemsViewState">
-    <option name="selectedTabId" value="CurrentFile" />
+    <option name="selectedTabId" value="QODANA_PROBLEMS_VIEW_TAB" />
   </component>
   <component name="ProjectColorInfo">{
   &quot;associatedIndex&quot;: 7
@@ -81,7 +131,7 @@
       <workItem from="1697475034583" duration="41000" />
       <workItem from="1697520020059" duration="775000" />
       <workItem from="1697523606120" duration="23824000" />
-      <workItem from="1697600961721" duration="16162000" />
+      <workItem from="1697600961721" duration="38122000" />
     </task>
     <task id="LOCAL-00001" summary="I like things that are deep">
       <option name="closed" value="true" />
@@ -131,7 +181,15 @@
       <option name="project" value="LOCAL" />
       <updated>1697548381156</updated>
     </task>
-    <option name="localTasksCounter" value="7" />
+    <task id="LOCAL-00007" summary="centrum 100 tablets bottle deep">
+      <option name="closed" value="true" />
+      <created>1697617819723</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1697617819723</updated>
+    </task>
+    <option name="localTasksCounter" value="8" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -142,7 +200,8 @@
     <MESSAGE value="Changes by ASUS" />
     <MESSAGE value="I like things that are deeper" />
     <MESSAGE value="centrum bottle deep" />
-    <option name="LAST_COMMIT_MESSAGE" value="centrum bottle deep" />
+    <MESSAGE value="centrum 100 tablets bottle deep" />
+    <option name="LAST_COMMIT_MESSAGE" value="centrum 100 tablets bottle deep" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -157,5 +216,10 @@
         </breakpoint>
       </breakpoints>
     </breakpoint-manager>
+  </component>
+  <component name="com.intellij.coverage.CoverageDataManagerImpl">
+    <SUITE FILE_PATH="coverage/sokoban_godeeper$Driver.ic" NAME="Driver Coverage Results" MODIFIED="1697630782706" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="idea" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false">
+      <FILTER>main.*</FILTER>
+    </SUITE>
   </component>
 </project>

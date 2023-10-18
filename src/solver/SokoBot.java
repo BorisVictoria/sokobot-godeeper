@@ -23,6 +23,8 @@ public class SokoBot {
   private int maxDepth;
   private String solution;
 
+  private final Stack<Push> stack;
+
   public SokoBot(int width, int height, char[][] mapData, char[][] itemsData) {
 
     this.width = width;
@@ -70,7 +72,10 @@ public class SokoBot {
     }
 
     state = new State(player, itemsData, "");
-    initialState = new State(player, itemsData, "");
+
+    Pos initialPlayer = new Pos(player.x(), player.y());
+    char[][] initialItemsData = Arrays.stream(itemsData).map(char[]::clone).toArray(char[][]::new);
+    initialState = new State(initialPlayer, initialItemsData, "");
 
     reachTiles = new Reach(height, width);
     clear();
@@ -80,6 +85,7 @@ public class SokoBot {
 
     solution = "";
 
+    stack = new Stack<Push>();
   }
 
   public boolean isPullValid(Pos pos, char dir) {
@@ -112,7 +118,8 @@ public class SokoBot {
     return true;
   }
 
-  public boolean[][] getDeadTiles() {
+  public boolean[][] getDeadTiles()
+  {
     boolean[][] deadTiles = new boolean[height][width];
     Arrays.stream(deadTiles).forEach(row->Arrays.fill(row,true));
 
@@ -123,7 +130,8 @@ public class SokoBot {
 
       toCheck.enqueue(curPos);
 
-      do {
+      do
+      {
 
         curPos = toCheck.dequeue();
 
@@ -160,17 +168,9 @@ public class SokoBot {
       } while (!toCheck.isEmpty());
     }
 
-    for (int i = 0; i < numGoals; i++) {
+    for (int i = 0; i < numGoals; i++)
+    {
       deadTiles[goals.get(i).y()][goals.get(i).x()] = false;
-    }
-
-    for (int i = 0; i < height; i++) {
-      for (int j = 0; j < width; j++) {
-        if(deadTiles[i][j])
-          System.out.print(".");
-        else System.out.print("O");
-      }
-      System.out.println();
     }
 
     return deadTiles;
@@ -374,6 +374,8 @@ public class SokoBot {
   {
     long key = 0;
     char[][] itemsData = state.getItemsData();
+    //Pos normal = state.getNormal();
+    //key ^= zobristTable[1][normal.y()][normal.x()];
 
     for (int i = 0; i < height; i++)
     {
@@ -500,20 +502,29 @@ public class SokoBot {
     throw new RuntimeException("Wasn't able to find the path!");
 
   }
+  /*
 
+  Stack<Push> pushes;
+
+  for (int i = 0; i < validmoves.size(); i++
+      pushes.add(validmoves
+
+
+   */
 
   public boolean goDeeper(int depth) {
-    System.out.println("depth: " + depth);
-    for (int i = 0; i < height; i++)
-        {
-          for (int j = 0; j < width; j++)
-          {
-            if (state.getItemsData()[i][j] == ' ')
-              System.out.print(mapData[i][j]);
-            else System.out.print(state.getItemsData()[i][j]);
-          }
-          System.out.println();
-        }
+
+//    System.out.println("depth: " + depth);
+//    for (int i = 0; i < height; i++)
+//        {
+//          for (int j = 0; j < width; j++)
+//          {
+//            if (state.getItemsData()[i][j] == ' ')
+//              System.out.print(mapData[i][j]);
+//            else System.out.print(state.getItemsData()[i][j]);
+//          }
+//          System.out.println();
+//        }
 
     if(isSolved()) {
       System.out.println("solution found!");
@@ -521,66 +532,61 @@ public class SokoBot {
     }
 
     if(depth > maxDepth) {
-      System.out.println("max depth reached");
+      //System.out.println("max depth reached");
       return false;
     }
 
     if(visitedStates.contains(calculateHash())) {
-      System.out.println("already visited");
+      //System.out.println("already visited");
       return false;
     }
 
-    calculateReach(state.getPos(), state.getItemsData());
+    state.setNormal(calculateReach(state.getPos(), state.getItemsData()));
     ArrayList<Push> validPushes = getValidPushes();
 
     for(int i = 0; i < validPushes.size(); i++)
     {
       char dir = validPushes.get(i).dir();
       int id = validPushes.get(i).id();
-
-      calculateReach(state.getPos(), state.getItemsData());
-
-//      for (int i = 0; i < height; i++)
+      if (i != 0)
+       state.setNormal(calculateReach(state.getPos(), state.getItemsData()));
+//      for (int j = 0; j < height; j++)
 //        {
-//          for (int j = 0; j < width; j++)
+//          for (int k = 0; k < width; k++)
 //          {
-//            if (reachTiles.getTiles()[i][j] == Integer.MAX_VALUE)
+//            if (reachTiles.getTiles()[j][k] == Integer.MAX_VALUE)
 //              System.out.print("+");
 //            else
-//              System.out.print(reachTiles.getTiles()[i][j]);
+//              System.out.print(reachTiles.getTiles()[j][k]);
 //          }
 //          System.out.println();
 //        }
 
-      System.out.println("Box: " + id + " " + state.getBoxPositions().get(id).boxPos().x() + " " + state.getBoxPositions().get(id).boxPos().y() + " " + dir);
-
+      //System.out.println("Box: " + id + " " + state.getBoxPositions().get(id).boxPos().x() + " " + state.getBoxPositions().get(id).boxPos().y() + " " + dir);
       visitedStates.add(calculateHash());
-      System.out.println("moving");
+      //System.out.println("moving");
       state.move(validPushes.get(i));
 
-      System.out.println("going deeper!");
+      //System.out.println("going deeper!");
       if(goDeeper(depth + 1)) {
-        //state.getSolution().add(validPushes.get(i));
         return true;
       }
       else {
         state.unmove();
-        System.out.println("unmoved cur state");
-        for (int j = 0; j < height; j++)
-        {
-          for (int k = 0; k < width; k++)
-          {
-            if (state.getItemsData()[j][k] == ' ')
-              System.out.print(mapData[j][k]);
-            else System.out.print(state.getItemsData()[j][k]);
-          }
-          System.out.println();
-        }
+//        System.out.println("unmoved cur state");
+//        for (int j = 0; j < height; j++)
+//        {
+//          for (int k = 0; k < width; k++)
+//          {
+//            if (state.getItemsData()[j][k] == ' ')
+//              System.out.print(mapData[j][k]);
+//            else System.out.print(state.getItemsData()[j][k]);
+//          }
+//          System.out.println();
+//
       }
-
     }
-
-    System.out.println("i give up");
+    //System.out.println("i give up");
     return false;
   }
 
@@ -590,12 +596,12 @@ public class SokoBot {
     ArrayList<Push> validPushes = new ArrayList<>();
 
     for(Box box : boxPositions) {
-
+      //System.out.println("Box " + box.id() + " " + box.boxPos().x() + " " + box.boxPos().y());
       if(reachTiles.getTiles()[box.boxPos().y()][box.boxPos().x()] == reachTiles.getStamp() + 1)
       {
-        System.out.println("Box " + box.id() + " " + box.boxPos().x() + " " + box.boxPos().y());
+
         // check up
-        System.out.println("checking taas!");
+        //System.out.println("checking taas!");
         if(reachTiles.getTiles()[box.boxPos().y() + 1][box.boxPos().x()] == reachTiles.getStamp() && mapData[box.boxPos().y() - 1][box.boxPos().x()] != '#' && state.getItemsData()[box.boxPos().y()-1][box.boxPos().x()] != '$' && !deadTiles[box.boxPos().y()-1][box.boxPos().x()]) {
           char[][] newItemsData = Arrays.stream(state.getItemsData()).map(char[]::clone).toArray(char[][]::new); //copy current items data
           newItemsData[playerPos.y()][playerPos.x()] = ' '; //clear player
@@ -604,10 +610,10 @@ public class SokoBot {
 
           if (isSolvable(newItemsData, new Pos(box.boxPos().x(), box.boxPos().y() - 1))) {
             validPushes.add(new Push(box.id(), 'u'));
-          } else System.out.println("freeze deadlock!");
-        } else System.out.println("wall, crate, or deadtile encountered");
+          } //else System.out.println("freeze deadlock!");
+        } //else System.out.println("wall, crate, or deadtile encountered");
         // check down
-        System.out.println("checking baba!");
+        //System.out.println("checking baba!");
         if(reachTiles.getTiles()[box.boxPos().y() - 1][box.boxPos().x()] == reachTiles.getStamp() && mapData[box.boxPos().y() + 1][box.boxPos().x()] != '#' && state.getItemsData()[box.boxPos().y() + 1][box.boxPos().x()] != '$' && !deadTiles[box.boxPos().y() + 1][box.boxPos().x()])
         {
           char[][] newItemsData = Arrays.stream(state.getItemsData()).map(char[]::clone).toArray(char[][]::new); //copy current items data
@@ -617,10 +623,10 @@ public class SokoBot {
 
           if (isSolvable(newItemsData, new Pos(box.boxPos().x(), box.boxPos().y() + 1))) {
             validPushes.add(new Push(box.id(), 'd'));
-          } else System.out.println("freeze deadlock!");
-        } else System.out.println("wall, crate, or deadtile encountered");
+          } //else System.out.println("freeze deadlock!");
+        } //else System.out.println("wall, crate, or deadtile encountered");
         // check left
-        System.out.println("checking kaliwa!");
+        //System.out.println("checking kaliwa!");
         if(reachTiles.getTiles()[box.boxPos().y()][box.boxPos().x() + 1] == reachTiles.getStamp() && mapData[box.boxPos().y()][box.boxPos().x() - 1] != '#' && state.getItemsData()[box.boxPos().y()][box.boxPos().x() - 1] != '$' && !deadTiles[box.boxPos().y()][box.boxPos().x() - 1])
         {
           char[][] newItemsData = Arrays.stream(state.getItemsData()).map(char[]::clone).toArray(char[][]::new); //copy current items data
@@ -630,10 +636,10 @@ public class SokoBot {
 
           if (isSolvable(newItemsData, new Pos(box.boxPos().x() - 1, box.boxPos().y()))) {
             validPushes.add(new Push(box.id(), 'l'));
-          } else System.out.println("freeze deadlock!");
-        } else System.out.println("wall, crate, or deadtile encountered");
+          } //else System.out.println("freeze deadlock!");
+        } //else System.out.println("wall, crate, or deadtile encountered");
         // check right
-        System.out.println("checking kanan!");
+        //System.out.println("checking kanan!");
         if(reachTiles.getTiles()[box.boxPos().y()][box.boxPos().x() - 1] == reachTiles.getStamp() && mapData[box.boxPos().y()][box.boxPos().x() + 1] != '#' && state.getItemsData()[box.boxPos().y()][box.boxPos().x() + 1] != '$' && !deadTiles[box.boxPos().y()][box.boxPos().x() + 1])
         {
           char[][] newItemsData = Arrays.stream(state.getItemsData()).map(char[]::clone).toArray(char[][]::new); //copy current items data
@@ -643,10 +649,10 @@ public class SokoBot {
 
           if (isSolvable(newItemsData, new Pos(box.boxPos().x() + 1, box.boxPos().y()))) {
             validPushes.add(new Push(box.id(), 'r'));
-          } else System.out.println("freeze deadlock!");
-        } else System.out.println("wall, crate, or deadtile encountered");
-      } else System.out.println("box is unreachable");
-      System.out.println();
+          } //else System.out.println("freeze deadlock!");
+        } //else System.out.println("wall, crate, or deadtile encountered");
+      } //else System.out.println("box is unreachable");
+      //System.out.println();
     }
 
     return validPushes;
@@ -655,11 +661,25 @@ public class SokoBot {
 
   public String solveSokobanPuzzle()
   {
+
+    for (int i = 0; i < height; i++)
+    {
+      for (int j = 0; j < width; j++)
+      {
+        if (deadTiles[i][j] == false)
+          System.out.print("x");
+        else
+          System.out.print("O");
+      }
+      System.out.println();
+    }
     if (goDeeper(0))
     {
       //Stack<Push> pushes = state.getSolution();
       ArrayDeque<Push> pushes = state.getPushes();
       System.out.println(pushes.size());
+      //System.out.println(pushes.size());
+
 
 //      while(!pushes.isEmpty())
 //      {
@@ -668,28 +688,52 @@ public class SokoBot {
 //      }
       while (!pushes.isEmpty())
       {
-        System.out.println("calculating path of push");
-        Push push = pushes.poll();
+//        System.out.println("calculating path of push");
+//        for (int i = 0; i < height; i++)
+//        {
+//          for (int j = 0; j < width; j++)
+//          {
+//            if (initialState.getItemsData()[i][j] == ' ')
+//              System.out.print(mapData[i][j]);
+//            else System.out.print(initialState.getItemsData()[i][j]);
+//          }
+//          System.out.println();
+//        }
+
         calculateReach(initialState.getPos(), initialState.getItemsData());
+        Push push = pushes.poll();
+        Pos boxPos = initialState.getBoxPositions().get(push.id()).boxPos();
+        Pos startPos = initialState.getPos();
 
-
-
-        if (dir == 'u') {
-
-          System.out.println("Cur sol: " + solution);
-        } else if (dir == 'd') {
-
-          System.out.println("Cur sol: " + solution);
-        } else if (dir == 'l') {
-
-
-        } else if (dir == 'r') {
-
-
+        if (push.dir() == 'u') {
+          solution += calculatePath(startPos, new Pos(boxPos.x(), boxPos.y()+1)) + "u";
         }
+        else if (push.dir() == 'd') {
+          solution += calculatePath(startPos, new Pos(boxPos.x(), boxPos.y()-1)) + "d";
+        }
+        else if (push.dir() == 'l') {
+          solution += calculatePath(startPos, new Pos(boxPos.x()+1, boxPos.y())) + "l";
+        }
+        else if (push.dir() == 'r') {
+          solution += calculatePath(startPos, new Pos(boxPos.x()-1, boxPos.y())) + "r";
+        }
+
+        initialState.moveInitial(push);
       }
 
       System.out.println("Bread first search, we are done!");
+
+              //System.out.println("calculating path of push");
+        for (int i = 0; i < height; i++)
+        {
+          for (int j = 0; j < width; j++)
+          {
+            if (initialState.getItemsData()[i][j] == ' ')
+              System.out.print(mapData[i][j]);
+            else System.out.print(initialState.getItemsData()[i][j]);
+          }
+          System.out.println();
+        }
       return solution;
     }
 
@@ -702,43 +746,5 @@ public class SokoBot {
 
 
 /*
-
-  visited.add(curState)
-
-  do {
-    ctr = 0
-    validMoves = validMoves(curState)
-    for (Push validMove: getValidMoves) {
-      if(!isVisited(checkMove(validMove))) {
-        moves.push(validMove)
-        ctr++
-      }
-    }
-    if(d < max && ctr > 0) {
-      move = moves.pop
-      dMove(move)
-      path.push(move)
-
-      if(isCurSolved) {
-        return getPath(path)
-      }
-
-      visited.add(curState)
-      d++
-    }
-    else {
-      doUnmove(path.pop)
-      d--
-    }
-  } while(!moves.isEmpty())
-
-
-
-
-
-
-
-
-
 
  */
