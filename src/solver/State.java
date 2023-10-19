@@ -12,7 +12,7 @@ public class State
     private ArrayDeque<Push> pushes;
     private Pos normal;
 
-    public State(Pos pos, char[][] itemsData, String path) 
+    public State(Pos pos, char[][] itemsData, String path)
     {
         this.pos = pos;
         this.startPos = new Pos(pos.x(), pos.y());
@@ -37,6 +37,27 @@ public class State
 
         //this.heuristic = heuristic;
         //this.hashCode = hashCode;
+    }
+
+    public void setState(Pos pos, char[][] itemsData, String path) {
+        this.pos = pos;
+        this.normal = new Pos(pos.x(), pos.y());
+        this.itemsData = itemsData;
+        this.pushes = new ArrayDeque<>(1000);
+        this.boxes = new ArrayList<>();
+        int ctr = 0;
+        for(int i = 0; i < itemsData.length; i++)
+        {
+            for(int j = 0; j < itemsData[0].length; j++)
+            {
+                if (itemsData[i][j] == '$')
+                {
+                    boxes.add(new Box(ctr,new Pos(j,i)));
+                    ctr++;
+                }
+
+            }
+        }
     }
 
     public void move(Push push) {

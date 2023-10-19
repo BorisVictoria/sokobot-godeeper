@@ -1,5 +1,6 @@
 package solver;
 
+import java.lang.reflect.Array;
 import java.util.*;
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 import it.unimi.dsi.fastutil.objects.ObjectArrayFIFOQueue;
@@ -22,6 +23,7 @@ public class SokoBot {
 
   private int maxDepth;
   private String solution;
+  PriorityQueue<Board> frontiers;
 
   private final Stack<Push> stack;
 
@@ -33,6 +35,8 @@ public class SokoBot {
     this.zobristTable = new long[2][height][width];
     this.goals = new ObjectArrayList<>();
     visitedStates = new LongOpenHashSet();
+    Comparator<Board> comp = Comparator.comparing(Board::getHeuristic);
+    frontiers = new PriorityQueue<>(comp);
 
     Random rand = new Random();
 
@@ -81,7 +85,7 @@ public class SokoBot {
     clear();
     deadTiles = getDeadTiles();
 
-    maxDepth = 1000;
+    maxDepth = 10000;
 
     solution = "";
 
@@ -374,8 +378,8 @@ public class SokoBot {
   {
     long key = 0;
     char[][] itemsData = state.getItemsData();
-    //Pos normal = state.getNormal();
-    //key ^= zobristTable[1][normal.y()][normal.x()];
+//    Pos normal = state.getNormal();
+//    key ^= zobristTable[1][normal.y()][normal.x()];
 
     for (int i = 0; i < height; i++)
     {
@@ -659,9 +663,8 @@ public class SokoBot {
   }
 
 
-  public String solveSokobanPuzzle()
+  public String solveSokobanPuzzle2()
   {
-
     for (int i = 0; i < height; i++)
     {
       for (int j = 0; j < width; j++)
@@ -673,6 +676,8 @@ public class SokoBot {
       }
       System.out.println();
     }
+
+
     if (goDeeper(0))
     {
       //Stack<Push> pushes = state.getSolution();
@@ -742,6 +747,118 @@ public class SokoBot {
     return "lrlrlrlrlr";
   }
 
+  public int setupBoard(Board board) {
+    ArrayDeque<Push> pushes = board.getPushes();
+    state.setState(initialState.getPos(), initialState.getItemsData(), "");
+    int depth = 0;
+    for(int i = 0; i < pushes.size(); i++) {
+      state.move(pushes.poll());
+      depth++;
+    }
+
+    return depth;
+  }
+
+  public int calculateHeuristic() {
+    int heuristic = 0;
+
+
+    ArrayList<Box> boxes = state.getBoxPositions();
+    for(int i = 0; i < boxes.size(); i++) {
+      int min = 999;
+      for(int j = 0; j < goals.size(); j++) {
+        int dist = Math.abs(boxes.get(i).boxPos().x() - goals.get(j).x()) + Math.abs(boxes.get(i).boxPos().x() - goals.get(j).y());
+        if(dist < min)
+          min = dist;
+      }
+      heuristic += min;
+    }
+
+    return heuristic;
+  }
+  public boolean expand() {
+    System.out.println("expanding!");
+
+    state.setNormal(calculateReach(state.getPos(), state.getItemsData()));
+    ArrayList<Push> validPushes = getValidPushes();
+    for(int i = 0; i < validPushes.size(); i++) {
+      System.out.println("expanding: " + i);
+      state.move(validPushes.get(i));
+      if(isSolved()) {
+        return true;
+      }
+      else if(!visitedStates.contains(calculateHash())){
+        Board toOffer = new Board(state.getPushes(), calculateHeuristic());
+        visitedStates.add(calculateHash());
+        frontiers.offer(toOffer);
+        System.out.println("unmoving!");
+        state.unmove();
+      }
+      else System.out.println("already visited!");
+    }
+
+    return false;
+  }
+
+  public String solveSokobanPuzzle() {
+    frontiers.offer(new Board(state.getPushes(), state.getHeuristic()));
+
+    while(!frontiers.isEmpty()) {
+      System.out.println("here");
+      Board curBoard = frontiers.poll();
+      assert curBoard != null;
+      int depth = setupBoard(curBoard);
+      for (int i = 0; i < height; i++)
+      {
+        for (int j = 0; j < width; j++)
+        {
+          if (initialState.getItemsData()[i][j] == ' ')
+            System.out.print(mapData[i][j]);
+          else System.out.print(initialState.getItemsData()[i][j]);
+        }
+        System.out.println();
+      }
+
+      if (depth < maxDepth) {
+        if (expand()) {
+          ArrayDeque<Push> pushes = state.getPushes();
+          System.out.println(pushes.size());
+          //System.out.println(pushes.size());
+
+
+//      while(!pushes.isEmpty())
+//      {
+//        Push push = pushes.poll();
+//        System.out.println("Box " + push.id() + " " + push.dir());
+//      }
+          while (!pushes.isEmpty()) {
+//        System.out.println("calculating path of push");
+
+            calculateReach(initialState.getPos(), initialState.getItemsData());
+            Push push = pushes.poll();
+            Pos boxPos = initialState.getBoxPositions().get(push.id()).boxPos();
+            Pos startPos = initialState.getPos();
+
+            if (push.dir() == 'u') {
+              solution += calculatePath(startPos, new Pos(boxPos.x(), boxPos.y() + 1)) + "u";
+            } else if (push.dir() == 'd') {
+              solution += calculatePath(startPos, new Pos(boxPos.x(), boxPos.y() - 1)) + "d";
+            } else if (push.dir() == 'l') {
+              solution += calculatePath(startPos, new Pos(boxPos.x() + 1, boxPos.y())) + "l";
+            } else if (push.dir() == 'r') {
+              solution += calculatePath(startPos, new Pos(boxPos.x() - 1, boxPos.y())) + "r";
+            }
+
+            initialState.moveInitial(push);
+          }
+
+          return solution;
+        }
+      }
+    }
+
+    return "uuuuuuu";
+  }
 }
 
 
