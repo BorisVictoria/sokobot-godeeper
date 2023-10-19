@@ -281,7 +281,7 @@ public class SokoBot {
     }
   }
 
-  public Pos calculateReach(Pos start, char[][] itemsData)
+  public void calculateReach(Pos start, char[][] itemsData)
   {
     //Reset before overflow
     if (reachTiles.getStamp() >= Integer.MAX_VALUE - 2)
@@ -289,7 +289,7 @@ public class SokoBot {
 
     //Initialization
     reachTiles.setStamp(reachTiles.getStamp()+2);
-    reachTiles.setMin(start);
+    //reachTiles.setMin(start);
     int[][] tiles = reachTiles.getTiles();
     int stamp = reachTiles.getStamp();
     tiles[start.y()][start.x()] = stamp;
@@ -313,8 +313,8 @@ public class SokoBot {
           Pos up = new Pos(toCheck.x(), toCheck.y()-1);
           queue.add(up);
           tiles[toCheck.y()-1][toCheck.x()] = stamp;
-          if ((reachTiles.getMin().x() * width + reachTiles.getMin().y()) - (up.x() * width + up.y()) > 0)
-            reachTiles.setMin(up);
+          //if ((reachTiles.getMin().x() * width + reachTiles.getMin().y()) - (up.x() * width + up.y()) > 0)
+            //reachTiles.setMin(up);
         }
       }
 
@@ -329,8 +329,8 @@ public class SokoBot {
           Pos down = new Pos(toCheck.x(), toCheck.y()+1);
           queue.add(down);
           tiles[toCheck.y()+1][toCheck.x()] = stamp;
-          if ((reachTiles.getMin().x() * width + reachTiles.getMin().y()) - (down.x() * width + down.y()) > 0)
-            reachTiles.setMin(down);
+         // if ((reachTiles.getMin().x() * width + reachTiles.getMin().y()) - (down.x() * width + down.y()) > 0)
+           // reachTiles.setMin(down);
         }
       }
 
@@ -345,8 +345,8 @@ public class SokoBot {
           Pos right = new Pos(toCheck.x()+1, toCheck.y());
           queue.add(right);
           tiles[toCheck.y()][toCheck.x()+1] = stamp;
-          if ((reachTiles.getMin().x() * width + reachTiles.getMin().y()) - (right.x() * width + right.y()) > 0)
-            reachTiles.setMin(right);
+          //if ((reachTiles.getMin().x() * width + reachTiles.getMin().y()) - (right.x() * width + right.y()) > 0)
+            //reachTiles.setMin(right);
         }
       }
 
@@ -362,14 +362,14 @@ public class SokoBot {
           Pos left = new Pos(toCheck.x()-1, toCheck.y());
           queue.add(left);
           tiles[toCheck.y()][toCheck.x()-1] = stamp;
-          if ((reachTiles.getMin().x() * width + reachTiles.getMin().y()) - (left.x() * width + left.y()) > 0)
-            reachTiles.setMin(left);
+          //if ((reachTiles.getMin().x() * width + reachTiles.getMin().y()) - (left.x() * width + left.y()) > 0)
+           // reachTiles.setMin(left);
         }
       }
 
     }
 
-    return reachTiles.getMin();
+    //return new Pos(reachTiles.getMin().x(), reachTiles.getMin().y());
 
   }
 
@@ -545,7 +545,8 @@ public class SokoBot {
       return false;
     }
 
-    state.setNormal(calculateReach(state.getPos(), state.getItemsData()));
+    //state.setNormal(calculateReach(state.getPos(), state.getItemsData()));
+    calculateReach(state.getPos(), state.getItemsData());
     ArrayList<Push> validPushes = getValidPushes();
 
     for(int i = 0; i < validPushes.size(); i++)
@@ -553,7 +554,8 @@ public class SokoBot {
       char dir = validPushes.get(i).dir();
       int id = validPushes.get(i).id();
       if (i != 0)
-       state.setNormal(calculateReach(state.getPos(), state.getItemsData()));
+       calculateReach(state.getPos(), state.getItemsData());
+      //calculateReach(state.getPos(), state.getItemsData()));
 //      for (int j = 0; j < height; j++)
 //        {
 //          for (int k = 0; k < width; k++)
@@ -749,7 +751,8 @@ public class SokoBot {
 
   public int setupBoard(Board board) {
     ArrayDeque<Push> pushes = board.getPushes();
-    state.setState(initialState.getPos(), initialState.getItemsData(), "");
+
+    state.setState(new Pos(initialState.getPos().x(), initialState.getPos().y()), Arrays.stream(initialState.getItemsData()).map(char[]::clone).toArray(char[][]::new), "");
     int depth = 0;
     for(int i = 0; i < pushes.size(); i++) {
       state.move(pushes.poll());
@@ -779,42 +782,42 @@ public class SokoBot {
   public boolean expand() {
     System.out.println("expanding!");
 
-    state.setNormal(calculateReach(state.getPos(), state.getItemsData()));
+    //state.setNormal(calculateReach(state.getPos(), state.getItemsData()));
+    calculateReach(state.getPos(), state.getItemsData());
     ArrayList<Push> validPushes = getValidPushes();
     for(int i = 0; i < validPushes.size(); i++) {
-      System.out.println("expanding: " + i);
+      System.out.println("validPush: " + validPushes.get(i).id() + " " + validPushes.get(i).dir());
       state.move(validPushes.get(i));
       if(isSolved()) {
         return true;
       }
       else if(!visitedStates.contains(calculateHash())){
-        Board toOffer = new Board(state.getPushes(), calculateHeuristic());
+        Board toOffer = new Board(new ArrayDeque<>(state.getPushes()), calculateHeuristic());
         visitedStates.add(calculateHash());
         frontiers.offer(toOffer);
         System.out.println("unmoving!");
-        state.unmove();
       }
       else System.out.println("already visited!");
+      state.unmove();
     }
 
     return false;
   }
 
   public String solveSokobanPuzzle() {
-    frontiers.offer(new Board(state.getPushes(), state.getHeuristic()));
+    frontiers.offer(new Board(new ArrayDeque<>(state.getPushes()), state.getHeuristic()));
 
     while(!frontiers.isEmpty()) {
-      System.out.println("here");
+      System.out.println("frontier size: " + frontiers.size());
       Board curBoard = frontiers.poll();
-      assert curBoard != null;
       int depth = setupBoard(curBoard);
       for (int i = 0; i < height; i++)
       {
         for (int j = 0; j < width; j++)
         {
-          if (initialState.getItemsData()[i][j] == ' ')
+          if (state.getItemsData()[i][j] == ' ')
             System.out.print(mapData[i][j]);
-          else System.out.print(initialState.getItemsData()[i][j]);
+          else System.out.print(state.getItemsData()[i][j]);
         }
         System.out.println();
       }

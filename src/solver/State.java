@@ -40,9 +40,9 @@ public class State
     }
 
     public void setState(Pos pos, char[][] itemsData, String path) {
-        this.pos = pos;
+        this.pos = new Pos(pos.x(), pos.y());
         this.normal = new Pos(pos.x(), pos.y());
-        this.itemsData = itemsData;
+        this.itemsData = Arrays.stream(itemsData).map(char[]::clone).toArray(char[][]::new);
         this.pushes = new ArrayDeque<>(1000);
         this.boxes = new ArrayList<>();
         int ctr = 0;
