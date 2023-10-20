@@ -11,7 +11,7 @@ public class Driver {
 //      System.exit(1);
 //    }
 
-    String mapName = "twoboxes3";
+    String mapName = "original1";
     String mode = "bot";
 
     FileReader fileReader = new FileReader();
