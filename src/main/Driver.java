@@ -11,7 +11,7 @@ public class Driver {
 //      System.exit(1);
 //    }
 
-    String mapName = "gay3";
+    String mapName = "big";
     String mode = "bot";
 
     FileReader fileReader = new FileReader();

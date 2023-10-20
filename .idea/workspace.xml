@@ -4,11 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="c9ac0b84-0083-4e5d-9b65-d8018e4c8c4f" name="Changes" comment="its broken :(">
+    <list default="true" id="c9ac0b84-0083-4e5d-9b65-d8018e4c8c4f" name="Changes" comment="still broken ):">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/Driver.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/Driver.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/solver/SokoBot.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/solver/SokoBot.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/solver/State.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/solver/State.java" afterDir="false" />
     </list>
     <list id="d2b630df-78b5-42b6-b669-e7800976e7d6" name="Changes by ASUS" comment="Changes by ASUS" />
     <option name="SHOW_DIALOG" value="false" />
@@ -79,7 +78,8 @@
       <workItem from="1697523606120" duration="23824000" />
       <workItem from="1697600961721" duration="38891000" />
       <workItem from="1697690049230" duration="1600000" />
-      <workItem from="1697694219510" duration="2234000" />
+      <workItem from="1697694219510" duration="2298000" />
+      <workItem from="1697699297564" duration="2049000" />
     </task>
     <task id="LOCAL-00001" summary="I like things that are deep">
       <option name="closed" value="true" />
@@ -161,7 +161,15 @@
       <option name="project" value="LOCAL" />
       <updated>1697691566403</updated>
     </task>
-    <option name="localTasksCounter" value="11" />
+    <task id="LOCAL-00011" summary="still broken ):">
+      <option name="closed" value="true" />
+      <created>1697696515975</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1697696515975</updated>
+    </task>
+    <option name="localTasksCounter" value="12" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -175,7 +183,8 @@
     <MESSAGE value="Changes by ASUS" />
     <MESSAGE value="centrum 250 tablets bottle deep" />
     <MESSAGE value="its broken :(" />
-    <option name="LAST_COMMIT_MESSAGE" value="its broken :(" />
+    <MESSAGE value="still broken ):" />
+    <option name="LAST_COMMIT_MESSAGE" value="still broken ):" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

@@ -633,30 +633,30 @@ public class SokoBot {
         } //else System.out.println("wall, crate, or deadtile encountered");
         // check left
         //System.out.println("checking kaliwa!");
-        if(reachTiles.getTiles()[box.boxPos().y()][box.boxPos().x() + 1] == reachTiles.getStamp() && mapData[box.boxPos().y()][box.boxPos().x() - 1] != '#' && state.getItemsData()[box.boxPos().y()][box.boxPos().x() - 1] != '$' && !deadTiles[box.boxPos().y()][box.boxPos().x() - 1])
-        {
-          char[][] newItemsData = Arrays.stream(state.getItemsData()).map(char[]::clone).toArray(char[][]::new); //copy current items data
-          newItemsData[playerPos.y()][playerPos.x()] = ' '; //clear player
-          newItemsData[box.boxPos().y()][box.boxPos().x()] = '@'; //replace with player
-          newItemsData[box.boxPos().y()][box.boxPos().x() - 1] = '$'; //move box
-
-          if (isSolvable(newItemsData, new Pos(box.boxPos().x() - 1, box.boxPos().y()))) {
-            validPushes.add(new Push(box.id(), 'l'));
-          } //else System.out.println("freeze deadlock!");
-        } //else System.out.println("wall, crate, or deadtile encountered");
-        // check right
-        //System.out.println("checking kanan!");
-        if(reachTiles.getTiles()[box.boxPos().y()][box.boxPos().x() - 1] == reachTiles.getStamp() && mapData[box.boxPos().y()][box.boxPos().x() + 1] != '#' && state.getItemsData()[box.boxPos().y()][box.boxPos().x() + 1] != '$' && !deadTiles[box.boxPos().y()][box.boxPos().x() + 1])
-        {
-          char[][] newItemsData = Arrays.stream(state.getItemsData()).map(char[]::clone).toArray(char[][]::new); //copy current items data
-          newItemsData[playerPos.y()][playerPos.x()] = ' '; //clear player
-          newItemsData[box.boxPos().y()][box.boxPos().x()] = '@'; //replace with player
-          newItemsData[box.boxPos().y()][box.boxPos().x() + 1] = '$'; //move box
-
-          if (isSolvable(newItemsData, new Pos(box.boxPos().x() + 1, box.boxPos().y()))) {
-            validPushes.add(new Push(box.id(), 'r'));
-          } //else System.out.println("freeze deadlock!");
-        } //else System.out.println("wall, crate, or deadtile encountered");
+//        if(reachTiles.getTiles()[box.boxPos().y()][box.boxPos().x() + 1] == reachTiles.getStamp() && mapData[box.boxPos().y()][box.boxPos().x() - 1] != '#' && state.getItemsData()[box.boxPos().y()][box.boxPos().x() - 1] != '$' && !deadTiles[box.boxPos().y()][box.boxPos().x() - 1])
+//        {
+//          char[][] newItemsData = Arrays.stream(state.getItemsData()).map(char[]::clone).toArray(char[][]::new); //copy current items data
+//          newItemsData[playerPos.y()][playerPos.x()] = ' '; //clear player
+//          newItemsData[box.boxPos().y()][box.boxPos().x()] = '@'; //replace with player
+//          newItemsData[box.boxPos().y()][box.boxPos().x() - 1] = '$'; //move box
+//
+//          if (isSolvable(newItemsData, new Pos(box.boxPos().x() - 1, box.boxPos().y()))) {
+//            validPushes.add(new Push(box.id(), 'l'));
+//          } //else System.out.println("freeze deadlock!");
+//        } //else System.out.println("wall, crate, or deadtile encountered");
+//        // check right
+//        //System.out.println("checking kanan!");
+//        if(reachTiles.getTiles()[box.boxPos().y()][box.boxPos().x() - 1] == reachTiles.getStamp() && mapData[box.boxPos().y()][box.boxPos().x() + 1] != '#' && state.getItemsData()[box.boxPos().y()][box.boxPos().x() + 1] != '$' && !deadTiles[box.boxPos().y()][box.boxPos().x() + 1])
+//        {
+//          char[][] newItemsData = Arrays.stream(state.getItemsData()).map(char[]::clone).toArray(char[][]::new); //copy current items data
+//          newItemsData[playerPos.y()][playerPos.x()] = ' '; //clear player
+//          newItemsData[box.boxPos().y()][box.boxPos().x()] = '@'; //replace with player
+//          newItemsData[box.boxPos().y()][box.boxPos().x() + 1] = '$'; //move box
+//
+//          if (isSolvable(newItemsData, new Pos(box.boxPos().x() + 1, box.boxPos().y()))) {
+//            validPushes.add(new Push(box.id(), 'r'));
+//          } //else System.out.println("freeze deadlock!");
+//        } //else System.out.println("wall, crate, or deadtile encountered");
       } //else System.out.println("box is unreachable");
       //System.out.println();
     }
@@ -791,13 +791,15 @@ public class SokoBot {
       if(isSolved()) {
         return true;
       }
-      else if(!visitedStates.contains(calculateHash())){
+      else //if(!visitedStates.contains(calculateHash())){
+      {
         Board toOffer = new Board(new ArrayDeque<>(state.getPushes()), calculateHeuristic());
         visitedStates.add(calculateHash());
         frontiers.offer(toOffer);
         System.out.println("unmoving!");
+        //}
+        //else System.out.println("already visited!");
       }
-      else System.out.println("already visited!");
       state.unmove();
     }
 
@@ -822,7 +824,7 @@ public class SokoBot {
         System.out.println();
       }
 
-      if (depth < maxDepth) {
+      if (depth <= maxDepth) {
         if (expand()) {
           ArrayDeque<Push> pushes = state.getPushes();
           System.out.println(pushes.size());
