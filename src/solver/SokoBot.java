@@ -636,30 +636,30 @@ public class SokoBot {
         } //else System.out.println("wall, crate, or deadtile encountered");
         // check left
         //System.out.println("checking kaliwa!");
-//        if(reachTiles.getTiles()[box.boxPos().y()][box.boxPos().x() + 1] == reachTiles.getStamp() && mapData[box.boxPos().y()][box.boxPos().x() - 1] != '#' && state.getItemsData()[box.boxPos().y()][box.boxPos().x() - 1] != '$' && !deadTiles[box.boxPos().y()][box.boxPos().x() - 1])
-//        {
-//          char[][] newItemsData = Arrays.stream(state.getItemsData()).map(char[]::clone).toArray(char[][]::new); //copy current items data
-//          newItemsData[playerPos.y()][playerPos.x()] = ' '; //clear player
-//          newItemsData[box.boxPos().y()][box.boxPos().x()] = '@'; //replace with player
-//          newItemsData[box.boxPos().y()][box.boxPos().x() - 1] = '$'; //move box
-//
-//          if (isSolvable(newItemsData, new Pos(box.boxPos().x() - 1, box.boxPos().y()))) {
-//            validPushes.add(new Push(box.id(), 'l'));
-//          } //else System.out.println("freeze deadlock!");
-//        } //else System.out.println("wall, crate, or deadtile encountered");
-//        // check right
-//        //System.out.println("checking kanan!");
-//        if(reachTiles.getTiles()[box.boxPos().y()][box.boxPos().x() - 1] == reachTiles.getStamp() && mapData[box.boxPos().y()][box.boxPos().x() + 1] != '#' && state.getItemsData()[box.boxPos().y()][box.boxPos().x() + 1] != '$' && !deadTiles[box.boxPos().y()][box.boxPos().x() + 1])
-//        {
-//          char[][] newItemsData = Arrays.stream(state.getItemsData()).map(char[]::clone).toArray(char[][]::new); //copy current items data
-//          newItemsData[playerPos.y()][playerPos.x()] = ' '; //clear player
-//          newItemsData[box.boxPos().y()][box.boxPos().x()] = '@'; //replace with player
-//          newItemsData[box.boxPos().y()][box.boxPos().x() + 1] = '$'; //move box
-//
-//          if (isSolvable(newItemsData, new Pos(box.boxPos().x() + 1, box.boxPos().y()))) {
-//            validPushes.add(new Push(box.id(), 'r'));
-//          } //else System.out.println("freeze deadlock!");
-//        } //else System.out.println("wall, crate, or deadtile encountered");
+        if(reachTiles.getTiles()[box.boxPos().y()][box.boxPos().x() + 1] == reachTiles.getStamp() && mapData[box.boxPos().y()][box.boxPos().x() - 1] != '#' && state.getItemsData()[box.boxPos().y()][box.boxPos().x() - 1] != '$' && !deadTiles[box.boxPos().y()][box.boxPos().x() - 1])
+        {
+          char[][] newItemsData = Arrays.stream(state.getItemsData()).map(char[]::clone).toArray(char[][]::new); //copy current items data
+          newItemsData[playerPos.y()][playerPos.x()] = ' '; //clear player
+          newItemsData[box.boxPos().y()][box.boxPos().x()] = '@'; //replace with player
+          newItemsData[box.boxPos().y()][box.boxPos().x() - 1] = '$'; //move box
+
+          if (isSolvable(newItemsData, new Pos(box.boxPos().x() - 1, box.boxPos().y()))) {
+            validPushes.add(new Push(box.id(), 'l'));
+          } //else System.out.println("freeze deadlock!");
+        } //else System.out.println("wall, crate, or deadtile encountered");
+        // check right
+        //System.out.println("checking kanan!");
+        if(reachTiles.getTiles()[box.boxPos().y()][box.boxPos().x() - 1] == reachTiles.getStamp() && mapData[box.boxPos().y()][box.boxPos().x() + 1] != '#' && state.getItemsData()[box.boxPos().y()][box.boxPos().x() + 1] != '$' && !deadTiles[box.boxPos().y()][box.boxPos().x() + 1])
+        {
+          char[][] newItemsData = Arrays.stream(state.getItemsData()).map(char[]::clone).toArray(char[][]::new); //copy current items data
+          newItemsData[playerPos.y()][playerPos.x()] = ' '; //clear player
+          newItemsData[box.boxPos().y()][box.boxPos().x()] = '@'; //replace with player
+          newItemsData[box.boxPos().y()][box.boxPos().x() + 1] = '$'; //move box
+
+          if (isSolvable(newItemsData, new Pos(box.boxPos().x() + 1, box.boxPos().y()))) {
+            validPushes.add(new Push(box.id(), 'r'));
+          } //else System.out.println("freeze deadlock!");
+        } //else System.out.println("wall, crate, or deadtile encountered");
       } //else System.out.println("box is unreachable");
       //System.out.println();
     }
@@ -757,7 +757,7 @@ public class SokoBot {
 
     state.setState(new Pos(initialState.getPos().x(), initialState.getPos().y()), Arrays.stream(initialState.getItemsData()).map(char[]::clone).toArray(char[][]::new), "");
     int depth = 0;
-    for(int i = 0; i < pushes.size(); i++) {
+    while(!pushes.isEmpty()) {
       state.move(pushes.poll());
       depth++;
     }
@@ -772,7 +772,7 @@ public class SokoBot {
     for(int i = 0; i < boxes.size(); i++) {
       int min = 999;
       for(int j = 0; j < goals.size(); j++) {
-        int dist = Math.abs(boxes.get(i).boxPos().x() - goals.get(j).x()) + Math.abs(boxes.get(i).boxPos().x() - goals.get(j).y());
+        int dist = Math.abs(boxes.get(i).boxPos().x() - goals.get(j).x()) + Math.abs(boxes.get(i).boxPos().y() - goals.get(j).y());
         if(dist < min)
           min = dist;
       }
@@ -782,8 +782,6 @@ public class SokoBot {
     return heuristic;
   }
   public boolean expand() {
-    System.out.println("expanding!");
-
     //state.setNormal(calculateReach(state.getPos(), state.getItemsData()));
     calculateReach(state.getPos(), state.getItemsData());
     ArrayList<Push> validPushes = getValidPushes();
@@ -791,6 +789,9 @@ public class SokoBot {
       state.move(validPushes.get(i));
       if(isSolved()) {
         return true;
+      }
+      if(visitedStates.contains(calculateHash())) {
+        return false;
       }
       visitedStates.add(calculateHash());
       Board toOffer = new Board(new ArrayDeque<>(state.getPushes()), calculateHeuristic());
@@ -803,16 +804,16 @@ public class SokoBot {
   }
 
   public String solveSokobanPuzzle() {
-    frontiers.offer(new Board(new ArrayDeque<>(state.getPushes()), state.getHeuristic()));
+    frontiers.offer(new Board(new ArrayDeque<>(state.getPushes()), calculateHeuristic()));
 
     while(!frontiers.isEmpty()) {
-      System.out.println("frontier size: " + frontiers.size());
+
       Board curBoard = frontiers.poll();
+      System.out.println("Expanding:" + curBoard.getPushes() + " , heuristic: " + curBoard.getHeuristic());
       int depth = setupBoard(curBoard);
 
       if (depth <= maxDepth) {
         // DEBUG PRINTS
-        System.out.println("EXPANDING:" + state.getPushes());
         for (int j = 0; j < height; j++)
         {
           for (int k = 0; k < width; k++)
@@ -858,6 +859,7 @@ public class SokoBot {
       }
     }
 
+    System.out.println("We are not done!");
     return "uuuuuuu";
   }
 }
