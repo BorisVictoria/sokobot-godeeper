@@ -765,7 +765,6 @@ public class SokoBot {
   public int calculateHeuristic() {
     int heuristic = 0;
 
-
     ArrayList<Box> boxes = state.getBoxPositions();
     for(int i = 0; i < boxes.size(); i++) {
       int min = 999;
@@ -786,20 +785,14 @@ public class SokoBot {
     calculateReach(state.getPos(), state.getItemsData());
     ArrayList<Push> validPushes = getValidPushes();
     for(int i = 0; i < validPushes.size(); i++) {
-      System.out.println("validPush: " + validPushes.get(i).id() + " " + validPushes.get(i).dir());
       state.move(validPushes.get(i));
       if(isSolved()) {
         return true;
       }
-      else //if(!visitedStates.contains(calculateHash())){
-      {
-        Board toOffer = new Board(new ArrayDeque<>(state.getPushes()), calculateHeuristic());
-        visitedStates.add(calculateHash());
-        frontiers.offer(toOffer);
-        System.out.println("unmoving!");
-        //}
-        //else System.out.println("already visited!");
-      }
+      visitedStates.add(calculateHash());
+      Board toOffer = new Board(new ArrayDeque<>(state.getPushes()), calculateHeuristic());
+      System.out.println("offering: " + state.getPushes());
+      frontiers.offer(toOffer);
       state.unmove();
     }
 
@@ -813,18 +806,20 @@ public class SokoBot {
       System.out.println("frontier size: " + frontiers.size());
       Board curBoard = frontiers.poll();
       int depth = setupBoard(curBoard);
-      for (int i = 0; i < height; i++)
-      {
-        for (int j = 0; j < width; j++)
-        {
-          if (state.getItemsData()[i][j] == ' ')
-            System.out.print(mapData[i][j]);
-          else System.out.print(state.getItemsData()[i][j]);
-        }
-        System.out.println();
-      }
 
       if (depth <= maxDepth) {
+        // DEBUG PRINTS
+        System.out.println("EXPANDING:" + state.getPushes());
+        for (int j = 0; j < height; j++)
+        {
+          for (int k = 0; k < width; k++)
+          {
+            if (state.getItemsData()[j][k] == ' ')
+              System.out.print(mapData[j][k]);
+            else System.out.print(state.getItemsData()[j][k]);
+          }
+          System.out.println();
+        }
         if (expand()) {
           ArrayDeque<Push> pushes = state.getPushes();
           System.out.println(pushes.size());
@@ -837,8 +832,6 @@ public class SokoBot {
 //        System.out.println("Box " + push.id() + " " + push.dir());
 //      }
           while (!pushes.isEmpty()) {
-//        System.out.println("calculating path of push");
-
             calculateReach(initialState.getPos(), initialState.getItemsData());
             Push push = pushes.poll();
             Pos boxPos = initialState.getBoxPositions().get(push.id()).boxPos();

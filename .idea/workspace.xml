@@ -4,9 +4,8 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="c9ac0b84-0083-4e5d-9b65-d8018e4c8c4f" name="Changes" comment="still broken ):">
+    <list default="true" id="c9ac0b84-0083-4e5d-9b65-d8018e4c8c4f" name="Changes" comment="too deep ?">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/Driver.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/Driver.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/solver/SokoBot.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/solver/SokoBot.java" afterDir="false" />
     </list>
     <list id="d2b630df-78b5-42b6-b669-e7800976e7d6" name="Changes by ASUS" comment="Changes by ASUS" />
@@ -80,6 +79,7 @@
       <workItem from="1697690049230" duration="1600000" />
       <workItem from="1697694219510" duration="2298000" />
       <workItem from="1697699297564" duration="2049000" />
+      <workItem from="1697806770149" duration="3520000" />
     </task>
     <task id="LOCAL-00001" summary="I like things that are deep">
       <option name="closed" value="true" />
@@ -169,11 +169,30 @@
       <option name="project" value="LOCAL" />
       <updated>1697696515975</updated>
     </task>
-    <option name="localTasksCounter" value="12" />
+    <task id="LOCAL-00012" summary="too deep ?">
+      <option name="closed" value="true" />
+      <created>1697806964222</created>
+      <option name="number" value="00012" />
+      <option name="presentableId" value="LOCAL-00012" />
+      <option name="project" value="LOCAL" />
+      <updated>1697806964222</updated>
+    </task>
+    <option name="localTasksCounter" value="13" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="I like things that are deep" />
@@ -184,7 +203,8 @@
     <MESSAGE value="centrum 250 tablets bottle deep" />
     <MESSAGE value="its broken :(" />
     <MESSAGE value="still broken ):" />
-    <option name="LAST_COMMIT_MESSAGE" value="still broken ):" />
+    <MESSAGE value="too deep ?" />
+    <option name="LAST_COMMIT_MESSAGE" value="too deep ?" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
