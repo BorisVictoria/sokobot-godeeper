@@ -24,8 +24,6 @@ public class SokoBot {
   private String solution;
   PriorityQueue<Board> frontiers;
 
-  private final Stack<Push> stack;
-
   private boolean debugMode = false;
 
   public SokoBot(int width, int height, char[][] mapData, char[][] itemsData) {
@@ -90,7 +88,6 @@ public class SokoBot {
 
     solution = "";
 
-    stack = new Stack<Push>();
   }
 
   public boolean isPullValid(Pos pos, char dir) {
@@ -181,7 +178,7 @@ public class SokoBot {
     return deadTiles;
   }
 
-  public boolean isBlocked(char[][] nextItemsData, Pos box)
+  public boolean isBlocked(Pos box)
   {
 
     this.areBoxesOnGoalTiles = false;
@@ -192,41 +189,41 @@ public class SokoBot {
       this.areBoxesOnGoalTiles = true;
 
     // the hack kekw
-    nextItemsData[box.y()][box.x()] = 'W';
+    state.getItemsData()[box.y()][box.x()] = 'W';
 
     // medyo hacky pero this treats the new crate as a wall
-    if (mapData[box.y()-1][box.x()] == '#' || mapData[box.y()+1][box.x()] == '#' || nextItemsData[box.y()-1][box.x()] == 'W' || nextItemsData[box.y()+1][box.x()] == 'W')
+    if (mapData[box.y()-1][box.x()] == '#' || mapData[box.y()+1][box.x()] == '#' || state.getItemsData()[box.y()-1][box.x()] == 'W' || state.getItemsData()[box.y()+1][box.x()] == 'W')
     {
       blockedY = true;
     }
-    else if (nextItemsData[box.y()-1][box.x()] == '$')
+    else if (state.getItemsData()[box.y()-1][box.x()] == '$')
     {
 
-      blockedY = isBlocked(nextItemsData, new Pos(box.x(),box.y()-1)); // TRY IT AGAIN BITCH
+      blockedY = isBlocked(new Pos(box.x(),box.y()-1)); // TRY IT AGAIN BITCH
     }
 
-    else if (nextItemsData[box.y() + 1][box.x()] == '$')
+    else if (state.getItemsData()[box.y() + 1][box.x()] == '$')
     {
-      blockedY = isBlocked(nextItemsData, new Pos(box.x(),box.y()+1));
+      blockedY = isBlocked(new Pos(box.x(),box.y()+1));
     }
 
-    if (mapData[box.y()][box.x()-1] == '#' || mapData[box.y()][box.x()+1] == '#' || nextItemsData[box.y()][box.x()-1] == 'W' || nextItemsData[box.y()][box.x()+1] == 'W')
+    if (mapData[box.y()][box.x()-1] == '#' || mapData[box.y()][box.x()+1] == '#' || state.getItemsData()[box.y()][box.x()-1] == 'W' || state.getItemsData()[box.y()][box.x()+1] == 'W')
     {
       blockedX = true;
     }
 
-    else if (nextItemsData[box.y()][box.x()-1] == '$')
+    else if (state.getItemsData()[box.y()][box.x()-1] == '$')
     {
-      blockedX = isBlocked(nextItemsData, new Pos(box.x()-1, box.y()));
+      blockedX = isBlocked(new Pos(box.x()-1, box.y()));
     }
 
     // i'm actually talking to my ex sa dc, goddamn ikr // that's why nandito pa rin ako rn like damn
     // BROOOOOO
     //
     // oh shit ur still here pala HAHAHAHA, i understand the algorithm na pala from the website, im trying to trace ur code rn
-    else if (nextItemsData[box.y()][box.x() + 1] == '$')
+    else if (state.getItemsData()[box.y()][box.x() + 1] == '$')
     {
-      blockedX = isBlocked(nextItemsData, new Pos(box.x()+1, box.y()));
+      blockedX = isBlocked(new Pos(box.x()+1, box.y()));
     }
 
 //                       _oo0oo_
@@ -256,12 +253,28 @@ public class SokoBot {
 
   }
 
-  public boolean isSolvable(char[][] nextItemsData, Pos movedBox)
+  public boolean isSolvable(Pos movedBox)
   {
 
-    if (isBlocked(nextItemsData, movedBox))
+    if (isBlocked(movedBox))
     {
+      for (int i = 0; i < height; i++)
+      {
+        for (int j = 0; j < width; j++)
+        {
+          if (state.getItemsData()[i][j] == 'W')
+            state.getItemsData()[i][j] = '$';
+        }
+      }
       return areBoxesOnGoalTiles;
+    }
+    for (int i = 0; i < height; i++)
+    {
+      for (int j = 0; j < width; j++)
+      {
+        if (state.getItemsData()[i][j] == 'W')
+          state.getItemsData()[i][j] = '$';
+      }
     }
 
     return true;
@@ -294,7 +307,7 @@ public class SokoBot {
 
     //Initialization
     reachTiles.setStamp(reachTiles.getStamp()+2);
-    //reachTiles.setMin(start);
+    reachTiles.setMin(start);
     int[][] tiles = reachTiles.getTiles();
     int stamp = reachTiles.getStamp();
     tiles[start.y()][start.x()] = stamp;
@@ -318,8 +331,8 @@ public class SokoBot {
           Pos up = new Pos(toCheck.x(), toCheck.y()-1);
           queue.add(up);
           tiles[toCheck.y()-1][toCheck.x()] = stamp;
-          //if ((reachTiles.getMin().x() * width + reachTiles.getMin().y()) - (up.x() * width + up.y()) > 0)
-            //reachTiles.setMin(up);
+          if ((reachTiles.getMin().x() * width + reachTiles.getMin().y()) - (up.x() * width + up.y()) > 0)
+            reachTiles.setMin(up);
         }
       }
 
@@ -367,8 +380,8 @@ public class SokoBot {
           Pos left = new Pos(toCheck.x()-1, toCheck.y());
           queue.add(left);
           tiles[toCheck.y()][toCheck.x()-1] = stamp;
-          //if ((reachTiles.getMin().x() * width + reachTiles.getMin().y()) - (left.x() * width + left.y()) > 0)
-           // reachTiles.setMin(left);
+          if ((reachTiles.getMin().x() * width + reachTiles.getMin().y()) - (left.x() * width + left.y()) > 0)
+            reachTiles.setMin(left);
         }
       }
 
@@ -511,15 +524,7 @@ public class SokoBot {
     throw new RuntimeException("Wasn't able to find the path!");
 
   }
-  /*
 
-  Stack<Push> pushes;
-
-  for (int i = 0; i < validmoves.size(); i++
-      pushes.add(validmoves
-
-
-   */
 
   public boolean goDeeper(int depth) {
 
@@ -607,60 +612,70 @@ public class SokoBot {
     ArrayList<Push> validPushes = new ArrayList<>();
 
     for(Box box : boxPositions) {
-      // DEBUG System.out.println("Box " + box.id() + " " + box.boxPos().x() + " " + box.boxPos().y());
+      //System.out.println("Box " + box.id() + " " + box.boxPos().x() + " " + box.boxPos().y());
       if(reachTiles.getTiles()[box.boxPos().y()][box.boxPos().x()] == reachTiles.getStamp() + 1)
       {
 
         // check up
-        // DEBUG System.out.println("checking taas!");
+        //System.out.println("checking taas!");
         if(reachTiles.getTiles()[box.boxPos().y() + 1][box.boxPos().x()] == reachTiles.getStamp() && mapData[box.boxPos().y() - 1][box.boxPos().x()] != '#' && state.getItemsData()[box.boxPos().y()-1][box.boxPos().x()] != '$' && !deadTiles[box.boxPos().y()-1][box.boxPos().x()]) {
-          char[][] newItemsData = Arrays.stream(state.getItemsData()).map(char[]::clone).toArray(char[][]::new); //copy current items data
-          newItemsData[playerPos.y()][playerPos.x()] = ' '; //clear player
-          newItemsData[box.boxPos().y()][box.boxPos().x()] = '@'; //replace with player
-          newItemsData[box.boxPos().y() - 1][box.boxPos().x()] = '$'; //move box
+          state.getItemsData()[playerPos.y()][playerPos.x()] = ' '; //clear player
+          state.getItemsData()[box.boxPos().y()][box.boxPos().x()] = '@'; //replace with player
+          state.getItemsData()[box.boxPos().y() - 1][box.boxPos().x()] = '$'; //move box
 
-          if (isSolvable(newItemsData, new Pos(box.boxPos().x(), box.boxPos().y() - 1))) {
+          if (isSolvable(new Pos(box.boxPos().x(), box.boxPos().y() - 1))) {
             validPushes.add(new Push(box.id(), 'u'));
           } //else System.out.println("freeze deadlock!");
+          state.getItemsData()[playerPos.y()][playerPos.x()] = '@'; //add player back
+          state.getItemsData()[box.boxPos().y()][box.boxPos().x()] = '$'; //add box back
+          state.getItemsData()[box.boxPos().y() - 1][box.boxPos().x()] = ' '; //remove box
+
         } // else System.out.println("wall, crate, or deadtile encountered");
         // check down
         // System.out.println("checking baba!");
         if(reachTiles.getTiles()[box.boxPos().y() - 1][box.boxPos().x()] == reachTiles.getStamp() && mapData[box.boxPos().y() + 1][box.boxPos().x()] != '#' && state.getItemsData()[box.boxPos().y() + 1][box.boxPos().x()] != '$' && !deadTiles[box.boxPos().y() + 1][box.boxPos().x()])
         {
-          char[][] newItemsData = Arrays.stream(state.getItemsData()).map(char[]::clone).toArray(char[][]::new); //copy current items data
-          newItemsData[playerPos.y()][playerPos.x()] = ' '; //clear player
-          newItemsData[box.boxPos().y()][box.boxPos().x()] = '@'; //replace with player
-          newItemsData[box.boxPos().y() + 1][box.boxPos().x()] = '$'; //move box
+          state.getItemsData()[playerPos.y()][playerPos.x()] = ' '; //clear player
+          state.getItemsData()[box.boxPos().y()][box.boxPos().x()] = '@'; //replace with player
+          state.getItemsData()[box.boxPos().y() + 1][box.boxPos().x()] = '$'; //move box
 
-          if (isSolvable(newItemsData, new Pos(box.boxPos().x(), box.boxPos().y() + 1))) {
+          if (isSolvable(new Pos(box.boxPos().x(), box.boxPos().y() + 1))) {
             validPushes.add(new Push(box.id(), 'd'));
           } // else System.out.println("freeze deadlock!");
+
+          state.getItemsData()[playerPos.y()][playerPos.x()] = '@'; //clear player
+          state.getItemsData()[box.boxPos().y()][box.boxPos().x()] = '$'; //replace with player
+          state.getItemsData()[box.boxPos().y() + 1][box.boxPos().x()] = ' '; //move box
         } // else System.out.println("wall, crate, or deadtile encountered");
         // check left
         // System.out.println("checking kaliwa!");
         if(reachTiles.getTiles()[box.boxPos().y()][box.boxPos().x() + 1] == reachTiles.getStamp() && mapData[box.boxPos().y()][box.boxPos().x() - 1] != '#' && state.getItemsData()[box.boxPos().y()][box.boxPos().x() - 1] != '$' && !deadTiles[box.boxPos().y()][box.boxPos().x() - 1])
         {
-          char[][] newItemsData = Arrays.stream(state.getItemsData()).map(char[]::clone).toArray(char[][]::new); //copy current items data
-          newItemsData[playerPos.y()][playerPos.x()] = ' '; //clear player
-          newItemsData[box.boxPos().y()][box.boxPos().x()] = '@'; //replace with player
-          newItemsData[box.boxPos().y()][box.boxPos().x() - 1] = '$'; //move box
+          state.getItemsData()[playerPos.y()][playerPos.x()] = ' '; //clear player
+          state.getItemsData()[box.boxPos().y()][box.boxPos().x()] = '@'; //replace with player
+          state.getItemsData()[box.boxPos().y()][box.boxPos().x() - 1] = '$'; //move box
 
-          if (isSolvable(newItemsData, new Pos(box.boxPos().x() - 1, box.boxPos().y()))) {
+          if (isSolvable(new Pos(box.boxPos().x() - 1, box.boxPos().y()))) {
             validPushes.add(new Push(box.id(), 'l'));
           } // else System.out.println("freeze deadlock!");
+          state.getItemsData()[playerPos.y()][playerPos.x()] = '@'; //clear player
+          state.getItemsData()[box.boxPos().y()][box.boxPos().x()] = '$'; //replace with player
+          state.getItemsData()[box.boxPos().y()][box.boxPos().x() - 1] = ' '; //move box
         } // else System.out.println("wall, crate, or deadtile encountered");
         // check right
         // System.out.println("checking kanan!");
         if(reachTiles.getTiles()[box.boxPos().y()][box.boxPos().x() - 1] == reachTiles.getStamp() && mapData[box.boxPos().y()][box.boxPos().x() + 1] != '#' && state.getItemsData()[box.boxPos().y()][box.boxPos().x() + 1] != '$' && !deadTiles[box.boxPos().y()][box.boxPos().x() + 1])
         {
-          char[][] newItemsData = Arrays.stream(state.getItemsData()).map(char[]::clone).toArray(char[][]::new); //copy current items data
-          newItemsData[playerPos.y()][playerPos.x()] = ' '; //clear player
-          newItemsData[box.boxPos().y()][box.boxPos().x()] = '@'; //replace with player
-          newItemsData[box.boxPos().y()][box.boxPos().x() + 1] = '$'; //move box
+          state.getItemsData()[playerPos.y()][playerPos.x()] = ' '; //clear player
+          state.getItemsData()[box.boxPos().y()][box.boxPos().x()] = '@'; //replace with player
+          state.getItemsData()[box.boxPos().y()][box.boxPos().x() + 1] = '$'; //move box
 
-          if (isSolvable(newItemsData, new Pos(box.boxPos().x() + 1, box.boxPos().y()))) {
+          if (isSolvable(new Pos(box.boxPos().x() + 1, box.boxPos().y()))) {
             validPushes.add(new Push(box.id(), 'r'));
           } // else System.out.println("freeze deadlock!");
+          state.getItemsData()[playerPos.y()][playerPos.x()] = '@'; //clear player
+          state.getItemsData()[box.boxPos().y()][box.boxPos().x()] = '$'; //replace with player
+          state.getItemsData()[box.boxPos().y()][box.boxPos().x() + 1] = ' '; //move box
         } // else System.out.println("wall, crate, or deadtile encountered");
       } // else System.out.println("box is unreachable");
       // System.out.println();
@@ -672,17 +687,17 @@ public class SokoBot {
 
   public String solveSokobanPuzzle2()
   {
-    for (int i = 0; i < height; i++)
-    {
-      for (int j = 0; j < width; j++)
-      {
-        if (deadTiles[i][j] == false)
-          System.out.print("x");
-        else
-          System.out.print("O");
-      }
-      System.out.println();
-    }
+//    for (int i = 0; i < height; i++)
+//    {
+//      for (int j = 0; j < width; j++)
+//      {
+//        if (deadTiles[i][j] == false)
+//          System.out.print("x");
+//        else
+//          System.out.print("O");
+//      }
+//      System.out.println();
+//    }
 
 
     if (goDeeper(0))
@@ -766,6 +781,11 @@ public class SokoBot {
 
     return depth;
   }
+  /*
+      ArrayDeque<Push> pushes = board.getPushes();
+      ArrayDeque<Push> pushes = board.getPushesh
+
+   */
 
   public int calculateHeuristic() {
     int heuristic = 0;
@@ -791,6 +811,7 @@ public class SokoBot {
       if(isSolved()) {
         return true;
       }
+      state.setNormal(calculateReach(state.getPos(), state.getItemsData()));
       if(visitedStates.contains(calculateHash())) {
         state.unmove();
       }
@@ -857,7 +878,7 @@ public class SokoBot {
 
             initialState.moveInitial(push);
           }
-
+          System.out.println("Bread first search, we are done!");
           return solution;
         }
       }
