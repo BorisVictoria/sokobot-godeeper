@@ -1,6 +1,5 @@
 package solver;
 
-import java.lang.reflect.Array;
 import java.util.*;
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 import it.unimi.dsi.fastutil.objects.ObjectArrayFIFOQueue;
@@ -15,7 +14,7 @@ public class SokoBot {
   private final State state;
   private final State initialState;
   private final ObjectArrayList<Pos> goals;
-
+  private boolean areBoxesOnGoalTiles;
   private final int numGoals;
   private Reach reachTiles;
   private final boolean[][] deadTiles;
@@ -183,8 +182,12 @@ public class SokoBot {
   public boolean isBlocked(char[][] nextItemsData, Pos box)
   {
 
+    this.areBoxesOnGoalTiles = false;
     boolean blockedX = false;
     boolean blockedY = false;
+
+    if (mapData[box.y()][box.x()] == '.')
+      this.areBoxesOnGoalTiles = true;
 
     // the hack kekw
     nextItemsData[box.y()][box.x()] = 'W';
@@ -256,7 +259,7 @@ public class SokoBot {
 
     if (isBlocked(nextItemsData, movedBox))
     {
-      return mapData[movedBox.y()][movedBox.x()] == '.';
+      return areBoxesOnGoalTiles;
     }
 
     return true;
