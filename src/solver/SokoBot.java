@@ -98,19 +98,19 @@ public class SokoBot {
       else if(mapData[pos.y() - 2][pos.x()] == '#')
         return false;
     }
-    if(dir == 'd') {
+    else if(dir == 'd') {
       if(mapData[pos.y() + 1][pos.x()] == '#')
         return false;
       else if(mapData[pos.y() + 2][pos.x()] == '#')
         return false;
     }
-    if(dir == 'l') {
+    else if(dir == 'l') {
       if(mapData[pos.y()][pos.x() - 1] == '#')
         return false;
       else if(mapData[pos.y()][pos.x() - 2] == '#')
         return false;
     }
-    if(dir == 'r') {
+    else if(dir == 'r') {
       if (mapData[pos.y()][pos.x() + 1] == '#')
         return false;
       else if (mapData[pos.y()][pos.x() + 2] == '#')
@@ -192,7 +192,7 @@ public class SokoBot {
     state.getItemsData()[box.y()][box.x()] = 'W';
 
     // medyo hacky pero this treats the new crate as a wall
-    if (mapData[box.y()-1][box.x()] == '#' || mapData[box.y()+1][box.x()] == '#' || state.getItemsData()[box.y()-1][box.x()] == 'W' || state.getItemsData()[box.y()+1][box.x()] == 'W')
+    if (mapData[box.y()-1][box.x()] == '#' || mapData[box.y()+1][box.x()] == '#' || state.getItemsData()[box.y()-1][box.x()] == 'W' || state.getItemsData()[box.y()+1][box.x()] == 'W' || deadTiles[box.y()-1][box.x()] && deadTiles[box.y()+1][box.x()])
     {
       blockedY = true;
     }
@@ -207,7 +207,7 @@ public class SokoBot {
       blockedY = isBlocked(new Pos(box.x(),box.y()+1));
     }
 
-    if (mapData[box.y()][box.x()-1] == '#' || mapData[box.y()][box.x()+1] == '#' || state.getItemsData()[box.y()][box.x()-1] == 'W' || state.getItemsData()[box.y()][box.x()+1] == 'W')
+    if (mapData[box.y()][box.x()-1] == '#' || mapData[box.y()][box.x()+1] == '#' || state.getItemsData()[box.y()][box.x()-1] == 'W' || state.getItemsData()[box.y()][box.x()+1] == 'W' || deadTiles[box.y()][box.x()-1] && deadTiles[box.y()][box.x()+1] )
     {
       blockedX = true;
     }
@@ -770,22 +770,49 @@ public class SokoBot {
   }
 
   public int setupBoard(Board board) {
-    ArrayDeque<Push> pushes = board.getPushes();
+    ArrayDeque<Push> boardPushes = board.getPushes();
+    ArrayDeque<Push> statePushes = state.getPushes();
+    ArrayDeque<Push> newStatePushes = new ArrayDeque<>(1000);
 
-    state.setState(new Pos(initialState.getPos().x(), initialState.getPos().y()), Arrays.stream(initialState.getItemsData()).map(char[]::clone).toArray(char[][]::new), "");
-    int depth = 0;
-    while(!pushes.isEmpty()) {
-      state.move(pushes.poll());
-      depth++;
+//    state.setState(new Pos(initialState.getPos().x(), initialState.getPos().y()), Arrays.stream(initialState.getItemsData()).map(char[]::clone).toArray(char[][]::new), "");
+//    int depth = 0;
+//    while(!boardPushes.isEmpty()) {
+//      state.move(boardPushes.poll());
+//      depth++;
+//    }
+//
+//    return depth;
+
+    while (!boardPushes.isEmpty() && !statePushes.isEmpty())
+    {
+      Push boardPush = boardPushes.poll();
+      Push statePush = statePushes.poll();
+
+      if (!boardPush.equals(statePush))
+      {
+        boardPushes.offerFirst(boardPush);
+        statePushes.offerFirst(statePush);
+        break;
+      }
+      else
+        newStatePushes.offer(boardPush);
     }
 
-    return depth;
-  }
-  /*
-      ArrayDeque<Push> pushes = board.getPushes();
-      ArrayDeque<Push> pushes = board.getPushesh
+    while (!statePushes.isEmpty())
+    {
+      state.unmove();
+    }
 
-   */
+    state.setPushes(newStatePushes);
+
+    while (!boardPushes.isEmpty())
+    {
+      state.move(boardPushes.poll());
+    }
+
+    return state.getPushes().size();
+
+  }
 
   public int calculateHeuristic() {
     int heuristic = 0;
@@ -828,11 +855,26 @@ public class SokoBot {
   }
 
   public String solveSokobanPuzzle() {
-    frontiers.offer(new Board(new ArrayDeque<>(state.getPushes()), calculateHeuristic()));
 
+//    for (int i = 0; i < height; i++)
+//    {
+//      for (int j = 0; j < width; j++)
+//      {
+//        if (mapData[i][j] == '#')
+//          System.out.print("~");
+//        else if (deadTiles[i][j])
+//          System.out.print("x");
+//        else
+//          System.out.print("O");
+//      }
+//      System.out.println();
+//    }
+    frontiers.offer(new Board(new ArrayDeque<>(state.getPushes()), calculateHeuristic()));
+    int nodes = 0;
     while(!frontiers.isEmpty()) {
 
       Board curBoard = frontiers.poll();
+      nodes++;
       // System.out.println("Expanding:" + curBoard.getPushes() + " , heuristic: " + curBoard.getHeuristic());
       int depth = setupBoard(curBoard);
 
@@ -879,6 +921,7 @@ public class SokoBot {
             initialState.moveInitial(push);
           }
           System.out.println("Bread first search, we are done!");
+          System.out.println("Nodes expanded: " + nodes);
           return solution;
         }
       }

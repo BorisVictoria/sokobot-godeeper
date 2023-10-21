@@ -9,6 +9,7 @@ public class State
     private int heuristic;
     private long hashCode;
     private ArrayList<Box> boxes;
+
     private ArrayDeque<Push> pushes;
     private Pos normal;
 
@@ -173,6 +174,9 @@ public class State
 
     public ArrayDeque<Push> getPushes() {
         return this.pushes;
+    }
+    public void setPushes(ArrayDeque<Push> pushes) {
+        this.pushes = pushes;
     }
 
     public ArrayList<Box> getBoxPositions()
