@@ -10,7 +10,7 @@ public class SokoBot {
   private final int width;
   private final int height;
   private final char[][] mapData;
-  private final long[][][] zobristTable;
+  private long[][][] zobristTable;
   private final State state;
   private final State initialState;
 
@@ -19,8 +19,8 @@ public class SokoBot {
   private boolean areBoxesOnGoalTiles;
   private final int numGoals;
   private Reach reachTiles;
-  private final boolean[][] deadTiles;
-  private final LongOpenHashSet visitedStates;
+  private boolean[][] deadTiles;
+  private LongOpenHashSet visitedStates;
 
   private int maxDepth;
   private String solution;
@@ -813,13 +813,13 @@ public class SokoBot {
 
       while(!frontiers.isEmpty()) {
 
-      Board curBoard = frontiers.poll();
-      nodes++;
-      // System.out.println("Expanding:" + curBoard.getPushes() + " , heuristic: " + curBoard.getHeuristic());
-      int depth = setupBoard(curBoard);
+        Board curBoard = frontiers.poll();
+        nodes++;
+        // System.out.println("Expanding:" + curBoard.getPushes() + " , heuristic: " + curBoard.getHeuristic());
+        int depth = setupBoard(curBoard);
 
-      if (depth <= maxDepth) {
-        // DEBUG PRINTS
+        if (depth <= maxDepth) {
+          // DEBUG PRINTS
 //          for (int j = 0; j < height; j++)
 //          {
 //            for (int k = 0; k < width; k++)
@@ -831,10 +831,10 @@ public class SokoBot {
 //            System.out.println();
 //          }
 
-        if (expand()) {
-          ArrayDeque<Push> pushes = state.getPushes();
-          // System.out.println(pushes.size());
-          //System.out.println(pushes.size());
+          if (expand()) {
+            ArrayDeque<Push> pushes = state.getPushes();
+            // System.out.println(pushes.size());
+            //System.out.println(pushes.size());
 
 
 //      while(!pushes.isEmpty())
@@ -842,21 +842,21 @@ public class SokoBot {
 //        Push push = pushes.poll();
 //        System.out.println("Box " + push.id() + " " + push.dir());
 //      }
-          while (!pushes.isEmpty()) {
-            calculateReach(initialState.getPos(), initialState.getItemsData());
-            Push push = pushes.poll();
-            Pos boxPos = initialState.getBoxPositions().get(push.id()).boxPos();
-            Pos startPos = initialState.getPos();
+            while (!pushes.isEmpty()) {
+              calculateReach(initialState.getPos(), initialState.getItemsData());
+              Push push = pushes.poll();
+              Pos boxPos = initialState.getBoxPositions().get(push.id()).boxPos();
+              Pos startPos = initialState.getPos();
 
-            if (push.dir() == 'u') {
-              solution += calculatePath(startPos, new Pos(boxPos.x(), boxPos.y() + 1)) + "u";
-            } else if (push.dir() == 'd') {
-              solution += calculatePath(startPos, new Pos(boxPos.x(), boxPos.y() - 1)) + "d";
-            } else if (push.dir() == 'l') {
-              solution += calculatePath(startPos, new Pos(boxPos.x() + 1, boxPos.y())) + "l";
-            } else if (push.dir() == 'r') {
-              solution += calculatePath(startPos, new Pos(boxPos.x() - 1, boxPos.y())) + "r";
-            }
+              if (push.dir() == 'u') {
+                solution += calculatePath(startPos, new Pos(boxPos.x(), boxPos.y() + 1)) + "u";
+              } else if (push.dir() == 'd') {
+                solution += calculatePath(startPos, new Pos(boxPos.x(), boxPos.y() - 1)) + "d";
+              } else if (push.dir() == 'l') {
+                solution += calculatePath(startPos, new Pos(boxPos.x() + 1, boxPos.y())) + "l";
+              } else if (push.dir() == 'r') {
+                solution += calculatePath(startPos, new Pos(boxPos.x() - 1, boxPos.y())) + "r";
+              }
 
               initialState.moveInitial(push);
             }
