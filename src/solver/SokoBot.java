@@ -217,10 +217,6 @@ public class SokoBot {
       blockedX = isBlocked(new Pos(box.x()-1, box.y()));
     }
 
-    // i'm actually talking to my ex sa dc, goddamn ikr // that's why nandito pa rin ako rn like damn
-    // BROOOOOO
-    //
-    // oh shit ur still here pala HAHAHAHA, i understand the algorithm na pala from the website, im trying to trace ur code rn
     else if (state.getItemsData()[box.y()][box.x() + 1] == '$')
     {
       blockedX = isBlocked(new Pos(box.x()+1, box.y()));
@@ -248,7 +244,7 @@ public class SokoBot {
 //
 //     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 //
-//               Tiam-Lee bless you         永无BUG cum on my face
+//               Tiam-Lee bless you         永无BUG
     return blockedX && blockedY;
 
   }
@@ -407,10 +403,6 @@ public class SokoBot {
         {
           key ^= zobristTable[0][i][j];
         }
-//        else if (itemsData[i][j] == '@')
-//        {
-//          key ^= zobristTable[1][i][j];
-//        }
       }
     }
     return key;
@@ -431,30 +423,6 @@ public class SokoBot {
 
     return s;
   }
-
-  /*
-  boolean DFS(curState, d, solution) {
-    if(isSolved)
-      return true
-
-    if (d > max)
-      return false
-
-    if (isVisited())
-      return false
-
-    for(Push validMove : curState.getValidMoves)
-      dMove(Move)
-      visited.add(curState)
-      if (DFS(d+1))
-        solution.append(push.getDir)
-        return true
-      else
-        unmove(push.getDir)
-
-    return false
-  }
-   */
 
   public String calculatePath(Pos player, Pos dest)
   {
@@ -523,87 +491,6 @@ public class SokoBot {
 
     throw new RuntimeException("Wasn't able to find the path!");
 
-  }
-
-
-  public boolean goDeeper(int depth) {
-
-//    System.out.println("depth: " + depth);
-//    for (int i = 0; i < height; i++)
-//        {
-//          for (int j = 0; j < width; j++)
-//          {
-//            if (state.getItemsData()[i][j] == ' ')
-//              System.out.print(mapData[i][j]);
-//            else System.out.print(state.getItemsData()[i][j]);
-//          }
-//          System.out.println();
-//        }
-
-    if(isSolved()) {
-      System.out.println("solution found!");
-      return true;
-    }
-
-    if(depth > maxDepth) {
-      //System.out.println("max depth reached");
-      return false;
-    }
-
-    if(visitedStates.contains(calculateHash())) {
-      //System.out.println("already visited");
-      return false;
-    }
-
-    //state.setNormal(calculateReach(state.getPos(), state.getItemsData()));
-    calculateReach(state.getPos(), state.getItemsData());
-    ArrayList<Push> validPushes = getValidPushes();
-
-    for(int i = 0; i < validPushes.size(); i++)
-    {
-      char dir = validPushes.get(i).dir();
-      int id = validPushes.get(i).id();
-      if (i != 0)
-       calculateReach(state.getPos(), state.getItemsData());
-      //calculateReach(state.getPos(), state.getItemsData()));
-//      for (int j = 0; j < height; j++)
-//        {
-//          for (int k = 0; k < width; k++)
-//          {
-//            if (reachTiles.getTiles()[j][k] == Integer.MAX_VALUE)
-//              System.out.print("+");
-//            else
-//              System.out.print(reachTiles.getTiles()[j][k]);
-//          }
-//          System.out.println();
-//        }
-
-      //System.out.println("Box: " + id + " " + state.getBoxPositions().get(id).boxPos().x() + " " + state.getBoxPositions().get(id).boxPos().y() + " " + dir);
-      visitedStates.add(calculateHash());
-      //System.out.println("moving");
-      state.move(validPushes.get(i));
-
-      //System.out.println("going deeper!");
-      if(goDeeper(depth + 1)) {
-        return true;
-      }
-      else {
-        state.unmove();
-//        System.out.println("unmoved cur state");
-//        for (int j = 0; j < height; j++)
-//        {
-//          for (int k = 0; k < width; k++)
-//          {
-//            if (state.getItemsData()[j][k] == ' ')
-//              System.out.print(mapData[j][k]);
-//            else System.out.print(state.getItemsData()[j][k]);
-//          }
-//          System.out.println();
-//
-      }
-    }
-    //System.out.println("i give up");
-    return false;
   }
 
   public ArrayList<Push> getValidPushes() {
@@ -682,91 +569,6 @@ public class SokoBot {
     }
 
     return validPushes;
-  }
-
-
-  public String solveSokobanPuzzle2()
-  {
-//    for (int i = 0; i < height; i++)
-//    {
-//      for (int j = 0; j < width; j++)
-//      {
-//        if (deadTiles[i][j] == false)
-//          System.out.print("x");
-//        else
-//          System.out.print("O");
-//      }
-//      System.out.println();
-//    }
-
-
-    if (goDeeper(0))
-    {
-      //Stack<Push> pushes = state.getSolution();
-      ArrayDeque<Push> pushes = state.getPushes();
-      System.out.println(pushes.size());
-      //System.out.println(pushes.size());
-
-
-//      while(!pushes.isEmpty())
-//      {
-//        Push push = pushes.poll();
-//        System.out.println("Box " + push.id() + " " + push.dir());
-//      }
-      while (!pushes.isEmpty())
-      {
-//        System.out.println("calculating path of push");
-//        for (int i = 0; i < height; i++)
-//        {
-//          for (int j = 0; j < width; j++)
-//          {
-//            if (initialState.getItemsData()[i][j] == ' ')
-//              System.out.print(mapData[i][j]);
-//            else System.out.print(initialState.getItemsData()[i][j]);
-//          }
-//          System.out.println();
-//        }
-
-        calculateReach(initialState.getPos(), initialState.getItemsData());
-        Push push = pushes.poll();
-        Pos boxPos = initialState.getBoxPositions().get(push.id()).boxPos();
-        Pos startPos = initialState.getPos();
-
-        if (push.dir() == 'u') {
-          solution += calculatePath(startPos, new Pos(boxPos.x(), boxPos.y()+1)) + "u";
-        }
-        else if (push.dir() == 'd') {
-          solution += calculatePath(startPos, new Pos(boxPos.x(), boxPos.y()-1)) + "d";
-        }
-        else if (push.dir() == 'l') {
-          solution += calculatePath(startPos, new Pos(boxPos.x()+1, boxPos.y())) + "l";
-        }
-        else if (push.dir() == 'r') {
-          solution += calculatePath(startPos, new Pos(boxPos.x()-1, boxPos.y())) + "r";
-        }
-
-        initialState.moveInitial(push);
-      }
-
-      System.out.println("Bread first search, we are done!");
-
-              //System.out.println("calculating path of push");
-        for (int i = 0; i < height; i++)
-        {
-          for (int j = 0; j < width; j++)
-          {
-            if (initialState.getItemsData()[i][j] == ' ')
-              System.out.print(mapData[i][j]);
-            else System.out.print(initialState.getItemsData()[i][j]);
-          }
-          System.out.println();
-        }
-      return solution;
-    }
-
-
-    System.out.println("We are not done!");
-    return "lrlrlrlrlr";
   }
 
   public int setupBoard(Board board) {
@@ -930,6 +732,8 @@ public class SokoBot {
     System.out.println("We are not done!");
     return "uuuuuuu";
   }
+
+
 }
 
 
