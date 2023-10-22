@@ -658,7 +658,7 @@ public class SokoBot {
       else {
         visitedStates.add(calculateHash());
         Board toOffer = new Board(new ArrayDeque<>(state.getPushes()), calculateHeuristic());
-        // System.out.println("offering: " + state.getPushes());
+        System.out.println("offering: " + state.getPushes());
         frontiers.offer(toOffer);
         state.unmove();
       }
@@ -675,18 +675,23 @@ public class SokoBot {
     char[][] itemsData = state.getItemsData();
     ArrayList<Push> validPushes = getValidPushes();
     ArrayList<Push> corralPushes = new ArrayList<>();
+    ArrayList<Box> boxes = state.getBoxPositions();
+    //ArrayList<Box> toCheck = new ArrayList<>();
 
     boolean isCorral = false;
     for(int i = 0; i < height; i++) {
       for(int j = 0; j < width; j ++) {
-        if(reachTiles[i][j] < this.reachTiles.getStamp() && reachTiles[i][j] != 0 && itemsData[i][j] != '$') {
+        if(reachTiles[i][j] < this.reachTiles.getStamp()) {
           isCorral = true;
           corralTilesArr[i][j] = true;
+          //System.out.print("O");
         }
         else {
           corralTilesArr[i][j] = false;
+          //System.out.print(".");
         }
       }
+      //System.out.println();
     }
 
     if(!isCorral) {
@@ -701,17 +706,18 @@ public class SokoBot {
 //
 //    }
 
-    // Check if all possible pushes of the boxes on the corral barrier are pushes into the corral
+    // Check if all possible pushes of the boxes on the corral barrier are pushes into the corral and that all adj boxes are accessible
 
     // find pushes on boxes that are adjacent to a corral tile
 
     boolean isPICorral = true;
     boolean isAllOnGoal = true;
-    for(Push validPush : validPushes) {
-      Pos boxPos = state.getBoxPositions().get(validPush.id()).boxPos();
-      char dir = validPush.dir();
-      boolean isAdj = false;
 
+    //for(Box box : toCheck)
+    for(Box box : boxes)
+    {
+      Pos boxPos = box.boxPos();
+      boolean isAdj = false;
       if(corralTilesArr[boxPos.y() - 1][boxPos.x()])
         isAdj = true;
       if(corralTilesArr[boxPos.y() + 1][boxPos.x()])
@@ -721,29 +727,92 @@ public class SokoBot {
       if(corralTilesArr[boxPos.y()][boxPos.x() + 1])
         isAdj = true;
 
-      if(isAdj) {
-        corralPushes.add(validPush);
-        if(mapData[boxPos.y()][boxPos.x()] != '.') {
-          isAllOnGoal = false;
-        }
-        if (dir == 'u' && !corralTilesArr[boxPos.y() - 1][boxPos.x()]) {
-          isPICorral = false;
-          break;
-        }
-        if (dir == 'd' && !corralTilesArr[boxPos.y() + 1][boxPos.x()]) {
-          isPICorral = false;
-          break;
-        }
-        if (dir == 'l' && !corralTilesArr[boxPos.y()][boxPos.x() - 1]) {
-          isPICorral = false;
-          break;
-        }
-        if (dir == 'r' && !corralTilesArr[boxPos.y()][boxPos.x() + 1]) {
-          isPICorral = false;
-          break;
+      boolean hasValidPush = false;
+      for(Push validPush : validPushes) {
+        if(validPush.id() == box.id()) {
+          hasValidPush = true;
+          if(isAdj)
+            corralPushes.add(validPush);
         }
       }
+
+//      if(isAdj && !hasValidPush) {
+//        isPICorral = false;
+//        System.out.println("Unreachable boundary box of corral detected!");
+//        return validPushes;
+//      }
+
+      if(isAdj && !hasValidPush && reachTiles[boxPos.y()][boxPos.x()] == this.reachTiles.getStamp() + 1) {
+        isPICorral = false;
+        System.out.println("Unreachable boundary box of corral detected!" + " " + boxPos);
+        System.out.println(isAdj);
+        System.out.println(hasValidPush);
+        System.out.println(reachTiles[boxPos.y()][boxPos.x()] == this.reachTiles.getStamp() + 1);
+        return validPushes;
+      }
     }
+
+    for(Push corralPush : corralPushes) {
+      char dir = corralPush.dir();
+      Pos boxPos = state.getBoxPositions().get(corralPush.id()).boxPos();
+      if(mapData[boxPos.y()][boxPos.x()] != '.') {
+        isAllOnGoal = false;
+      }
+      if (dir == 'u' && !corralTilesArr[boxPos.y() - 1][boxPos.x()]) {
+        isPICorral = false;
+        break;
+      }
+      if (dir == 'd' && !corralTilesArr[boxPos.y() + 1][boxPos.x()]) {
+        isPICorral = false;
+        break;
+      }
+      if (dir == 'l' && !corralTilesArr[boxPos.y()][boxPos.x() - 1]) {
+        isPICorral = false;
+        break;
+      }
+      if (dir == 'r' && !corralTilesArr[boxPos.y()][boxPos.x() + 1]) {
+        isPICorral = false;
+        break;
+      }
+    }
+
+//    for(Push validPush : validPushes) {
+//      Pos boxPos = state.getBoxPositions().get(validPush.id()).boxPos();
+//      char dir = validPush.dir();
+//      boolean isAdj = false;
+//
+//      if(corralTilesArr[boxPos.y() - 1][boxPos.x()])
+//        isAdj = true;
+//      if(corralTilesArr[boxPos.y() + 1][boxPos.x()])
+//        isAdj = true;
+//      if(corralTilesArr[boxPos.y()][boxPos.x() - 1])
+//        isAdj = true;
+//      if(corralTilesArr[boxPos.y()][boxPos.x() + 1])
+//        isAdj = true;
+//
+//      if(isAdj) {
+//        corralPushes.add(validPush);
+//        if(mapData[boxPos.y()][boxPos.x()] != '.') {
+//          isAllOnGoal = false;
+//        }
+//        if (dir == 'u' && !corralTilesArr[boxPos.y() - 1][boxPos.x()]) {
+//          isPICorral = false;
+//          break;
+//        }
+//        if (dir == 'd' && !corralTilesArr[boxPos.y() + 1][boxPos.x()]) {
+//          isPICorral = false;
+//          break;
+//        }
+//        if (dir == 'l' && !corralTilesArr[boxPos.y()][boxPos.x() - 1]) {
+//          isPICorral = false;
+//          break;
+//        }
+//        if (dir == 'r' && !corralTilesArr[boxPos.y()][boxPos.x() + 1]) {
+//          isPICorral = false;
+//          break;
+//        }
+//      }
+//    }
 
     if(!isPICorral) {
       System.out.println("not all pushes are towards corral");
