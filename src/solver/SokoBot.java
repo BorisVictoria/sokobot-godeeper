@@ -10,7 +10,8 @@ public class SokoBot {
   private final int width;
   private final int height;
   private final char[][] mapData;
-  private long[][][] zobristTable;
+  private final char[][] emptyItemsData;
+  private final long[][][] zobristTable;
   private final State state;
   private final State initialState;
   private final ObjectArrayList<Pos> goals;
@@ -19,13 +20,11 @@ public class SokoBot {
   private Reach reachTiles;
   private boolean[][] deadTiles;
   private LongOpenHashSet visitedStates;
-
   private int maxDepth;
   private String solution;
   PriorityQueue<Board> frontiers;
-
-  private boolean debugMode = false;
-
+  private boolean boxesOnGoals;
+  private boolean isCombined;
   public SokoBot(int width, int height, char[][] mapData, char[][] itemsData) {
 
     this.width = width;
@@ -74,17 +73,24 @@ public class SokoBot {
       }
     }
 
-    state = new State(player, itemsData, "");
+    state = new State(player, itemsData);
 
     Pos initialPlayer = new Pos(player.x(), player.y());
     char[][] initialItemsData = Arrays.stream(itemsData).map(char[]::clone).toArray(char[][]::new);
-    initialState = new State(initialPlayer, initialItemsData, "");
+    initialState = new State(initialPlayer, initialItemsData);
+
+    emptyItemsData = new char[height][width];
+    for(int i = 0; i < height; i ++) {
+      for(int j = 0; j < width; j++) {
+        emptyItemsData[i][j] = ' ';
+      }
+    }
 
     reachTiles = new Reach(height, width);
     clear();
     deadTiles = getDeadTiles();
 
-    maxDepth = 200;
+    maxDepth = 153;
 
     solution = "";
 
@@ -293,6 +299,8 @@ public class SokoBot {
           tiles[i][j] = 0;
       }
     }
+
+    calculateReach(state.getPos(), emptyItemsData);
   }
 
   public Pos calculateReach(Pos start, char[][] itemsData)
@@ -573,46 +581,48 @@ public class SokoBot {
 
   public int setupBoard(Board board) {
     ArrayDeque<Push> boardPushes = board.getPushes();
-    ArrayDeque<Push> statePushes = state.getPushes();
-    ArrayDeque<Push> newStatePushes = new ArrayDeque<>(200);
 
-//    state.setState(new Pos(initialState.getPos().x(), initialState.getPos().y()), Arrays.stream(initialState.getItemsData()).map(char[]::clone).toArray(char[][]::new), "");
-//    int depth = 0;
-//    while(!boardPushes.isEmpty()) {
-//      state.move(boardPushes.poll());
-//      depth++;
+    state.setState(new Pos(initialState.getPos().x(), initialState.getPos().y()), initialState.getItemsData());
+    int depth = 0;
+    while(!boardPushes.isEmpty()) {
+      state.move(boardPushes.poll());
+      depth++;
+    }
+
+    return depth;
+
+//    ArrayDeque<Push> statePushes = state.getPushes();
+//    ArrayDeque<Push> newStatePushes = new ArrayDeque<>(200);
+//
+//    while (!boardPushes.isEmpty() && !statePushes.isEmpty())
+//    {
+//      Push boardPush = boardPushes.poll();
+//      Push statePush = statePushes.poll();
+//
+//      if (!boardPush.equals(statePush))
+//      {
+//        boardPushes.offerFirst(boardPush);
+//        statePushes.offerFirst(statePush);
+//        break;
+//      }
+//      else
+//        newStatePushes.offer(new Push(boardPush.id(), boardPush.dir()));
 //    }
 //
-//    return depth;
-
-    while (!boardPushes.isEmpty() && !statePushes.isEmpty())
-    {
-      Push boardPush = boardPushes.poll();
-      Push statePush = statePushes.poll();
-
-      if (!boardPush.equals(statePush))
-      {
-        boardPushes.offerFirst(boardPush);
-        statePushes.offerFirst(statePush);
-        break;
-      }
-      else
-        newStatePushes.offer(boardPush);
-    }
-
-    while (!statePushes.isEmpty())
-    {
-      state.unmove();
-    }
-
-    state.setPushes(newStatePushes);
-
-    while (!boardPushes.isEmpty())
-    {
-      state.move(boardPushes.poll());
-    }
-
-    return state.getPushes().size();
+//    while (!statePushes.isEmpty())
+//    {
+//      state.unmove();
+//    }
+//
+//    state.setPushes(newStatePushes);
+//
+//    while (!boardPushes.isEmpty())
+//    {
+//      state.move(boardPushes.poll());
+//    }
+//    state.setNormal(calculateReach(state.getPos(), state.getItemsData()));
+//
+//    return state.getPushes().size();
 
   }
 
@@ -634,7 +644,8 @@ public class SokoBot {
   }
   public boolean expand() {
     state.setNormal(calculateReach(state.getPos(), state.getItemsData()));
-    ArrayList<Push> validPushes = isPiCorralled();
+    //ArrayList<Push> validPushes = isPiCorralled();
+    ArrayList<Push> validPushes = getValidPushes();
     for(int i = 0; i < validPushes.size(); i++) {
       state.move(validPushes.get(i));
       if(isSolved()) {
@@ -679,9 +690,16 @@ public class SokoBot {
     }
 
     if(!isCorral) {
-      //System.out.println("no unreachable tile detected");
+      System.out.println("no unreachable tile detected");
       return validPushes;
     }
+
+//    for (int i = 0; i < boxes.size(); i++)
+//    {
+//      if (!corralTilesArr[boxes.get(i).boxPos().y()][boxes.get(i).boxPos().x()])
+//        toCheck.add(boxes.get(i));
+//
+//    }
 
     // Check if all possible pushes of the boxes on the corral barrier are pushes into the corral
 
@@ -728,29 +746,23 @@ public class SokoBot {
     }
 
     if(!isPICorral) {
-      //System.out.println("not all pushes are towards corral");
+      System.out.println("not all pushes are towards corral");
       return validPushes;
     }
 
     // Check if at least one of the boxes in the corral has to be pushed to solve the level
     if(isAllOnGoal) {
-      //System.out.println("all boxes are on goal");
+      System.out.println("all boxes are on goal");
       return validPushes;
     }
-    //System.out.println("replacing pushes with corral pushes");
+    System.out.println("replacing pushes with corral pushes");
 
     return corralPushes;
   }
 
-  public String testPICorral()
+  public String solveSokobanPuzzle1()
   {
-    char[][] emptyItemsData = new char[height][width];
-    for(int i = 0; i < height; i ++) {
-      for(int j = 0; j < width; j++) {
-        emptyItemsData[i][j] = ' ';
-      }
-    }
-    calculateReach(state.getPos(), emptyItemsData);
+
     calculateReach(state.getPos(), state.getItemsData());
     for (int i = 0; i < height; i++)
     {
@@ -764,7 +776,7 @@ public class SokoBot {
       System.out.println();
     }
     System.out.println(isPiCorralled());
-    return "lrrlrlrlr";
+    return "u";
   }
 
 
@@ -783,13 +795,7 @@ public class SokoBot {
 //      }
 //      System.out.println();
 //    }
-    char[][] emptyItemsData = new char[height][width];
-    for(int i = 0; i < height; i ++) {
-      for(int j = 0; j < width; j++) {
-        emptyItemsData[i][j] = ' ';
-      }
-    }
-    calculateReach(state.getPos(), emptyItemsData);
+
     calculateReach(state.getPos(), state.getItemsData());
     frontiers.offer(new Board(new ArrayDeque<>(state.getPushes()), calculateHeuristic()));
     int nodes = 0;
@@ -797,21 +803,28 @@ public class SokoBot {
 
       Board curBoard = frontiers.poll();
       nodes++;
-      // System.out.println("Expanding:" + curBoard.getPushes() + " , heuristic: " + curBoard.getHeuristic());
+      System.out.println("Expanding:" + curBoard.getPushes() + " , heuristic: " + curBoard.getHeuristic());
       int depth = setupBoard(curBoard);
 
       if (depth <= maxDepth) {
         // DEBUG PRINTS
-//          for (int j = 0; j < height; j++)
-//          {
-//            for (int k = 0; k < width; k++)
-//            {
-//              if (state.getItemsData()[j][k] == ' ')
-//                System.out.print(mapData[j][k]);
-//              else System.out.print(state.getItemsData()[j][k]);
-//            }
-//            System.out.println();
-//          }
+          boolean playerPresent = false;
+          for (int j = 0; j < height; j++)
+          {
+            for (int k = 0; k < width; k++)
+            {
+              if (state.getItemsData()[j][k] == ' ')
+                System.out.print(mapData[j][k]);
+              else  {
+                if(state.getItemsData()[j][k] == '@')
+                  playerPresent = true;
+                System.out.print(state.getItemsData()[j][k]);
+              }
+            }
+            System.out.println();
+          }
+          if (!playerPresent)
+            System.out.println("HE VANISHED!");
 
         if (expand()) {
           ArrayDeque<Push> pushes = state.getPushes();
@@ -852,6 +865,41 @@ public class SokoBot {
     System.out.println("We are not done!");
     return "uuuuuuu";
   }
+
+  public boolean PiCorralPruning(int depth, Pos floor, int low)
+  {
+
+    calculateReach(floor, state.getItemsData());
+    int stamp = reachTiles.getStamp();
+    if (low > stamp)
+      return false;
+    boxesOnGoals = true;
+    isCombined = false;
+
+    int[][] corralTiles = Arrays.stream(reachTiles.getTiles()).map(int[]::clone).toArray(int[][]::new);
+    ArrayList<Box> boxPositions = new ArrayList<>();
+
+    for (Box box: state.getBoxPositions())
+    {
+      if(corralTiles[box.boxPos().y()][box.boxPos().x()] == stamp + 1)
+        boxPositions.add(new Box(box.id(), new Pos(box.boxPos().y(), box.boxPos().x())));
+    }
+
+    // figure out how to combine corrals to prevent recursive overflow
+
+
+
+
+
+
+
+
+
+     return true;
+
+  }
+
+
 
 
 }

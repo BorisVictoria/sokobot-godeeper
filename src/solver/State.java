@@ -6,16 +6,13 @@ public class State
     private Pos pos;
     private Pos startPos;
     private char[][] itemsData;
-    private int heuristic;
-    private long hashCode;
     private ArrayList<Box> boxes;
-
     private ArrayDeque<Push> pushes;
     private Pos normal;
 
-    public State(Pos pos, char[][] itemsData, String path)
+    public State(Pos pos, char[][] itemsData)
     {
-        this.pos = pos;
+        this.pos = pos;;
         this.startPos = new Pos(pos.x(), pos.y());
         this.normal = new Pos(pos.x(), pos.y());
         this.itemsData = itemsData;
@@ -35,12 +32,9 @@ public class State
             }
         }
 
-
-        //this.heuristic = heuristic;
-        //this.hashCode = hashCode;
     }
 
-    public void setState(Pos pos, char[][] itemsData, String path) {
+    public void setState(Pos pos, char[][] itemsData) {
         this.pos = new Pos(pos.x(), pos.y());
         this.normal = new Pos(pos.x(), pos.y());
         this.itemsData = Arrays.stream(itemsData).map(char[]::clone).toArray(char[][]::new);
@@ -178,32 +172,16 @@ public class State
     public void setPushes(ArrayDeque<Push> pushes) {
         this.pushes = pushes;
     }
-
     public ArrayList<Box> getBoxPositions()
     {
        return boxes;
     }
-
     public Pos getPos() {
         return pos;
     }
-
-    public void setPos(Pos pos) {
-        this.pos = pos;
-    }
-
     public char[][] getItemsData() {
         return itemsData;
     }
-
-    public int getHeuristic() {
-        return heuristic;
-    }
-
-    public long getHashCode() {
-        return hashCode;
-    }
-
     public Pos getNormal() {
         return normal;
     }
