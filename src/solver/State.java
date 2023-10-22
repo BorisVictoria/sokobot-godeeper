@@ -19,7 +19,7 @@ public class State
         this.startPos = new Pos(pos.x(), pos.y());
         this.normal = new Pos(pos.x(), pos.y());
         this.itemsData = itemsData;
-        this.pushes = new ArrayDeque<>(1000);
+        this.pushes = new ArrayDeque<>(200);
         this.boxes = new ArrayList<>();
         int ctr = 0;
         for(int i = 0; i < itemsData.length; i++)
@@ -44,7 +44,7 @@ public class State
         this.pos = new Pos(pos.x(), pos.y());
         this.normal = new Pos(pos.x(), pos.y());
         this.itemsData = Arrays.stream(itemsData).map(char[]::clone).toArray(char[][]::new);
-        this.pushes = new ArrayDeque<>(1000);
+        this.pushes = new ArrayDeque<>(200);
         this.boxes = new ArrayList<>();
         int ctr = 0;
         for(int i = 0; i < itemsData.length; i++)

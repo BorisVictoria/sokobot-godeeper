@@ -13,8 +13,6 @@ public class SokoBot {
   private long[][][] zobristTable;
   private final State state;
   private final State initialState;
-
-  private final State corralState;
   private final ObjectArrayList<Pos> goals;
   private boolean areBoxesOnGoalTiles;
   private final int numGoals;
@@ -82,15 +80,11 @@ public class SokoBot {
     char[][] initialItemsData = Arrays.stream(itemsData).map(char[]::clone).toArray(char[][]::new);
     initialState = new State(initialPlayer, initialItemsData, "");
 
-    Pos corralPlayer = new Pos(player.x(), player.y());
-    char[][] corralItemsData = Arrays.stream(itemsData).map(char[]::clone).toArray(char[][]::new);
-    corralState = new State(corralPlayer, corralItemsData, "");
-
     reachTiles = new Reach(height, width);
     clear();
     deadTiles = getDeadTiles();
 
-    maxDepth = 143;
+    maxDepth = 200;
 
     solution = "";
 
@@ -580,7 +574,7 @@ public class SokoBot {
   public int setupBoard(Board board) {
     ArrayDeque<Push> boardPushes = board.getPushes();
     ArrayDeque<Push> statePushes = state.getPushes();
-    ArrayDeque<Push> newStatePushes = new ArrayDeque<>(1000);
+    ArrayDeque<Push> newStatePushes = new ArrayDeque<>(200);
 
 //    state.setState(new Pos(initialState.getPos().x(), initialState.getPos().y()), Arrays.stream(initialState.getItemsData()).map(char[]::clone).toArray(char[][]::new), "");
 //    int depth = 0;
@@ -795,31 +789,19 @@ public class SokoBot {
         emptyItemsData[i][j] = ' ';
       }
     }
+    calculateReach(state.getPos(), emptyItemsData);
+    calculateReach(state.getPos(), state.getItemsData());
+    frontiers.offer(new Board(new ArrayDeque<>(state.getPushes()), calculateHeuristic()));
+    int nodes = 0;
+    while(!frontiers.isEmpty()) {
 
-    while(maxDepth < 500) {
-      // RESET EVERYTHING
-      state.setState(new Pos(initialState.getPos().x(), initialState.getPos().y()), Arrays.stream(initialState.getItemsData()).map(char[]::clone).toArray(char[][]::new), "");
-      visitedStates.clear();
-      frontiers.clear();
-      clear();
-      calculateReach(state.getPos(), emptyItemsData);
-      calculateReach(state.getPos(), state.getItemsData());
-      maxDepth += 10;
-      solution = "";
-      System.out.println("Max Depth: " + maxDepth);
+      Board curBoard = frontiers.poll();
+      nodes++;
+      // System.out.println("Expanding:" + curBoard.getPushes() + " , heuristic: " + curBoard.getHeuristic());
+      int depth = setupBoard(curBoard);
 
-      frontiers.offer(new Board(new ArrayDeque<>(state.getPushes()), calculateHeuristic()));
-      int nodes = 0;
-
-      while(!frontiers.isEmpty()) {
-
-        Board curBoard = frontiers.poll();
-        nodes++;
-        // System.out.println("Expanding:" + curBoard.getPushes() + " , heuristic: " + curBoard.getHeuristic());
-        int depth = setupBoard(curBoard);
-
-        if (depth <= maxDepth) {
-          // DEBUG PRINTS
+      if (depth <= maxDepth) {
+        // DEBUG PRINTS
 //          for (int j = 0; j < height; j++)
 //          {
 //            for (int k = 0; k < width; k++)
@@ -831,10 +813,10 @@ public class SokoBot {
 //            System.out.println();
 //          }
 
-          if (expand()) {
-            ArrayDeque<Push> pushes = state.getPushes();
-            // System.out.println(pushes.size());
-            //System.out.println(pushes.size());
+        if (expand()) {
+          ArrayDeque<Push> pushes = state.getPushes();
+          // System.out.println(pushes.size());
+          //System.out.println(pushes.size());
 
 
 //      while(!pushes.isEmpty())
@@ -842,32 +824,31 @@ public class SokoBot {
 //        Push push = pushes.poll();
 //        System.out.println("Box " + push.id() + " " + push.dir());
 //      }
-            while (!pushes.isEmpty()) {
-              calculateReach(initialState.getPos(), initialState.getItemsData());
-              Push push = pushes.poll();
-              Pos boxPos = initialState.getBoxPositions().get(push.id()).boxPos();
-              Pos startPos = initialState.getPos();
+          while (!pushes.isEmpty()) {
+            calculateReach(initialState.getPos(), initialState.getItemsData());
+            Push push = pushes.poll();
+            Pos boxPos = initialState.getBoxPositions().get(push.id()).boxPos();
+            Pos startPos = initialState.getPos();
 
-              if (push.dir() == 'u') {
-                solution += calculatePath(startPos, new Pos(boxPos.x(), boxPos.y() + 1)) + "u";
-              } else if (push.dir() == 'd') {
-                solution += calculatePath(startPos, new Pos(boxPos.x(), boxPos.y() - 1)) + "d";
-              } else if (push.dir() == 'l') {
-                solution += calculatePath(startPos, new Pos(boxPos.x() + 1, boxPos.y())) + "l";
-              } else if (push.dir() == 'r') {
-                solution += calculatePath(startPos, new Pos(boxPos.x() - 1, boxPos.y())) + "r";
-              }
-
-              initialState.moveInitial(push);
+            if (push.dir() == 'u') {
+              solution += calculatePath(startPos, new Pos(boxPos.x(), boxPos.y() + 1)) + "u";
+            } else if (push.dir() == 'd') {
+              solution += calculatePath(startPos, new Pos(boxPos.x(), boxPos.y() - 1)) + "d";
+            } else if (push.dir() == 'l') {
+              solution += calculatePath(startPos, new Pos(boxPos.x() + 1, boxPos.y())) + "l";
+            } else if (push.dir() == 'r') {
+              solution += calculatePath(startPos, new Pos(boxPos.x() - 1, boxPos.y())) + "r";
             }
-            System.out.println("Bread first search, we are done!");
-            System.out.println("Nodes expanded: " + nodes);
-            return solution;
+
+            initialState.moveInitial(push);
           }
+          System.out.println("Bread first search, we are done!");
+          System.out.println("Nodes expanded: " + nodes);
+          return solution;
         }
       }
-
     }
+
     System.out.println("We are not done!");
     return "uuuuuuu";
   }
