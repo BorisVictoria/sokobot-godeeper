@@ -868,7 +868,7 @@ public class SokoBot {
 
       Board curBoard = frontiers.poll();
       nodes++;
-      System.out.println("Expanding:" + curBoard.getPushes() + " , heuristic: " + curBoard.getHeuristic());
+      //System.out.println("Expanding:" + curBoard.getPushes() + " , heuristic: " + curBoard.getHeuristic());
       int depth = setupBoard(curBoard);
 
       if (depth <= maxDepth) {
