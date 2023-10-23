@@ -59,19 +59,15 @@ public class State
 
     public void move(Push push) {
 
-        //add to current queue of pushes
         pushes.add(push);
 
-        //get box referenced by id
         Pos boxPos = boxes.get(push.id()).boxPos();
         char dir = push.dir();
 
-        //clear position of current box and replace with player
         itemsData[boxPos.y()][boxPos.x()] = '@';
         itemsData[pos.y()][pos.x()] = ' ';
         this.pos = new Pos(boxPos.x(), boxPos.y());
 
-        //push box according to direction
         if (dir == 'u')
         {
            itemsData[boxPos.y()-1][boxPos.x()] = '$';
@@ -106,9 +102,8 @@ public class State
            Pos boxPos = boxes.get(push.id()).boxPos();
            char dir = push.dir();
 
-           //clear player
            itemsData[pos.y()][pos.x()] = ' ';
-           //clear box
+
            itemsData[boxPos.y()][boxPos.x()] = ' ';
            if (dir == 'u') {
                itemsData[boxPos.y() + 1][boxPos.x()] = '$';
@@ -133,17 +128,14 @@ public class State
            }
             moveCtr--;
        }
-       else if (pushes.size() == 1 && moveCtr == 1)// player must be put in start pos
+       else if (pushes.size() == 1 && moveCtr == 1)
        {
            Push push = pushes.pollLast();
            Pos boxPos = boxes.get(push.id()).boxPos();
            char dir = push.dir();
 
-           //clear player
            itemsData[pos.y()][pos.x()] = ' ';
-           //clear box
            itemsData[boxPos.y()][boxPos.x()] = ' ';
-           //add player to start pos
            this.pos = new Pos(startPos.x(), startPos.y());
            itemsData[pos.y()][pos.x()] = '@';
 
@@ -172,9 +164,7 @@ public class State
            Pos boxPos = boxes.get(push.id()).boxPos();
            char dir = push.dir();
 
-           //clear player
            itemsData[pos.y()][pos.x()] = ' ';
-           //clear box
            itemsData[boxPos.y()][boxPos.x()] = ' ';
            if (dir == 'u') {
                itemsData[boxPos.y() + 1][boxPos.x()] = '$';
@@ -228,16 +218,13 @@ public class State
     public void moveInitial(Push push)
     {
 
-        //get box referenced by id
         Pos boxPos = boxes.get(push.id()).boxPos();
         char dir = push.dir();
 
-        //clear position of current box and replace with player
         itemsData[boxPos.y()][boxPos.x()] = '@';
         itemsData[pos.y()][pos.x()] = ' ';
         this.pos = new Pos(boxPos.x(), boxPos.y());
 
-        //push box according to direction
         if (dir == 'u')
         {
             itemsData[boxPos.y()-1][boxPos.x()] = '$';
