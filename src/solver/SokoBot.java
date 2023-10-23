@@ -194,7 +194,7 @@ public class SokoBot {
     if (mapData[box.y()][box.x()] == '.')
       this.areBoxesOnGoalTiles = true;
 
-    // the hack kekw
+    // the hack
     state.getItemsData()[box.y()][box.x()] = 'W';
 
     // medyo hacky pero this treats the new crate as a wall
@@ -205,7 +205,7 @@ public class SokoBot {
     else if (state.getItemsData()[box.y()-1][box.x()] == '$')
     {
 
-      blockedY = isBlocked(new Pos(box.x(),box.y()-1)); // TRY IT AGAIN BITCH
+      blockedY = isBlocked(new Pos(box.x(),box.y()-1));
     }
 
     else if (state.getItemsData()[box.y() + 1][box.x()] == '$')
@@ -228,29 +228,6 @@ public class SokoBot {
       blockedX = isBlocked(new Pos(box.x()+1, box.y()));
     }
 
-//                       _oo0oo_
-//                      o8888888o
-//                      88" . "88
-//                      (| -_- |)
-//                      0\  =  /0
-//                    ___/`---'\___
-//                  .' \\|     |// '.
-//                 / \\|||  :  |||// \
-//                / _||||| -:- |||||- \
-//               |   | \\\  -  /// |   |
-//               | \_|  ''\---/''  |_/ |
-//               \  .-\__  '-'  ___/-. /
-//             ___'. .'  /--.--\  `. .'___
-//          ."" '<  `.___\_<|>_/___.' >' "".
-//         | | :  `- \`.;`\ _ /`;.`/ - ` : | |
-//         \  \ `_.   \_ __\ /__ _/   .-` /  /
-//     =====`-.____`.___ \_____/___.-`___.-'=====
-//                       `=---='
-//
-//
-//     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-//
-//               Tiam-Lee bless you         永无BUG
     return blockedX && blockedY;
 
   }
@@ -395,7 +372,7 @@ public class SokoBot {
 
   }
 
-  //Calculates the hash of the current state;
+  //Calculates the hash of the current state
   public long calculateHash()
   {
     long key = 0;
@@ -449,7 +426,6 @@ public class SokoBot {
     while (!queue.isEmpty())
     {
       Path current = queue.poll();
-      //System.out.println(current.path());
 
       if (current.pos().x() == dest.x() && current.pos().y() == dest.y())
       {
@@ -507,12 +483,8 @@ public class SokoBot {
     ArrayList<Push> validPushes = new ArrayList<>();
 
     for(Box box : boxPositions) {
-      //System.out.println("Box " + box.id() + " " + box.boxPos().x() + " " + box.boxPos().y());
       if(reachTiles.getTiles()[box.boxPos().y()][box.boxPos().x()] == reachTiles.getStamp() + 1)
       {
-
-        // check up
-        //System.out.println("checking taas!");
         if(reachTiles.getTiles()[box.boxPos().y() + 1][box.boxPos().x()] == reachTiles.getStamp() && mapData[box.boxPos().y() - 1][box.boxPos().x()] != '#' && state.getItemsData()[box.boxPos().y()-1][box.boxPos().x()] != '$' && !deadTiles[box.boxPos().y()-1][box.boxPos().x()]) {
           state.getItemsData()[playerPos.y()][playerPos.x()] = ' '; //clear player
           state.getItemsData()[box.boxPos().y()][box.boxPos().x()] = '@'; //replace with player
@@ -520,14 +492,12 @@ public class SokoBot {
 
           if (isSolvable(new Pos(box.boxPos().x(), box.boxPos().y() - 1))) {
             validPushes.add(new Push(box.id(), 'u'));
-          } //else System.out.println("freeze deadlock!");
+          }
           state.getItemsData()[playerPos.y()][playerPos.x()] = '@'; //add player back
           state.getItemsData()[box.boxPos().y()][box.boxPos().x()] = '$'; //add box back
           state.getItemsData()[box.boxPos().y() - 1][box.boxPos().x()] = ' '; //remove box
 
-        } // else System.out.println("wall, crate, or deadtile encountered");
-        // check down
-        // System.out.println("checking baba!");
+        }
         if(reachTiles.getTiles()[box.boxPos().y() - 1][box.boxPos().x()] == reachTiles.getStamp() && mapData[box.boxPos().y() + 1][box.boxPos().x()] != '#' && state.getItemsData()[box.boxPos().y() + 1][box.boxPos().x()] != '$' && !deadTiles[box.boxPos().y() + 1][box.boxPos().x()])
         {
           state.getItemsData()[playerPos.y()][playerPos.x()] = ' '; //clear player
@@ -536,14 +506,12 @@ public class SokoBot {
 
           if (isSolvable(new Pos(box.boxPos().x(), box.boxPos().y() + 1))) {
             validPushes.add(new Push(box.id(), 'd'));
-          } // else System.out.println("freeze deadlock!");
+          }
 
           state.getItemsData()[playerPos.y()][playerPos.x()] = '@'; //clear player
           state.getItemsData()[box.boxPos().y()][box.boxPos().x()] = '$'; //replace with player
           state.getItemsData()[box.boxPos().y() + 1][box.boxPos().x()] = ' '; //move box
-        } // else System.out.println("wall, crate, or deadtile encountered");
-        // check left
-        // System.out.println("checking kaliwa!");
+        }
         if(reachTiles.getTiles()[box.boxPos().y()][box.boxPos().x() + 1] == reachTiles.getStamp() && mapData[box.boxPos().y()][box.boxPos().x() - 1] != '#' && state.getItemsData()[box.boxPos().y()][box.boxPos().x() - 1] != '$' && !deadTiles[box.boxPos().y()][box.boxPos().x() - 1])
         {
           state.getItemsData()[playerPos.y()][playerPos.x()] = ' '; //clear player
@@ -552,13 +520,11 @@ public class SokoBot {
 
           if (isSolvable(new Pos(box.boxPos().x() - 1, box.boxPos().y()))) {
             validPushes.add(new Push(box.id(), 'l'));
-          } // else System.out.println("freeze deadlock!");
+          }
           state.getItemsData()[playerPos.y()][playerPos.x()] = '@'; //clear player
           state.getItemsData()[box.boxPos().y()][box.boxPos().x()] = '$'; //replace with player
           state.getItemsData()[box.boxPos().y()][box.boxPos().x() - 1] = ' '; //move box
-        } // else System.out.println("wall, crate, or deadtile encountered");
-        // check right
-        // System.out.println("checking kanan!");
+        }
         if(reachTiles.getTiles()[box.boxPos().y()][box.boxPos().x() - 1] == reachTiles.getStamp() && mapData[box.boxPos().y()][box.boxPos().x() + 1] != '#' && state.getItemsData()[box.boxPos().y()][box.boxPos().x() + 1] != '$' && !deadTiles[box.boxPos().y()][box.boxPos().x() + 1])
         {
           state.getItemsData()[playerPos.y()][playerPos.x()] = ' '; //clear player
@@ -567,13 +533,12 @@ public class SokoBot {
 
           if (isSolvable(new Pos(box.boxPos().x() + 1, box.boxPos().y()))) {
             validPushes.add(new Push(box.id(), 'r'));
-          } // else System.out.println("freeze deadlock!");
+          }
           state.getItemsData()[playerPos.y()][playerPos.x()] = '@'; //clear player
           state.getItemsData()[box.boxPos().y()][box.boxPos().x()] = '$'; //replace with player
           state.getItemsData()[box.boxPos().y()][box.boxPos().x() + 1] = ' '; //move box
-        } // else System.out.println("wall, crate, or deadtile encountered");
-      } // else System.out.println("box is unreachable");
-      // System.out.println();
+        }
+      }
     }
 
     return validPushes;
@@ -590,40 +555,6 @@ public class SokoBot {
     }
 
     return depth;
-
-//    ArrayDeque<Push> statePushes = state.getPushes();
-//    ArrayDeque<Push> newStatePushes = new ArrayDeque<>(200);
-//
-//    while (!boardPushes.isEmpty() && !statePushes.isEmpty())
-//    {
-//      Push boardPush = boardPushes.poll();
-//      Push statePush = statePushes.poll();
-//
-//      if (!boardPush.equals(statePush))
-//      {
-//        boardPushes.offerFirst(boardPush);
-//        statePushes.offerFirst(statePush);
-//        break;
-//      }
-//      else
-//        newStatePushes.offer(new Push(boardPush.id(), boardPush.dir()));
-//    }
-//
-//    while (!statePushes.isEmpty())
-//    {
-//      state.unmove();
-//    }
-//
-//    state.setPushes(newStatePushes);
-//
-//    while (!boardPushes.isEmpty())
-//    {
-//      state.move(boardPushes.poll());
-//    }
-//    state.setNormal(calculateReach(state.getPos(), state.getItemsData()));
-//
-//    return state.getPushes().size();
-
   }
 
   public int calculateHeuristic() {
@@ -644,7 +575,6 @@ public class SokoBot {
   }
   public boolean expand() {
     state.setNormal(calculateReach(state.getPos(), state.getItemsData()));
-    //ArrayList<Push> validPushes = isPiCorralled();
     ArrayList<Push> validPushes = getValidPushes();
     for(int i = 0; i < validPushes.size(); i++) {
       state.move(validPushes.get(i));
@@ -658,7 +588,6 @@ public class SokoBot {
       else {
         visitedStates.add(calculateHash());
         Board toOffer = new Board(new ArrayDeque<>(state.getPushes()), calculateHeuristic());
-        System.out.println("offering: " + state.getPushes());
         frontiers.offer(toOffer);
         state.unmove();
       }
@@ -676,7 +605,6 @@ public class SokoBot {
     ArrayList<Push> validPushes = getValidPushes();
     ArrayList<Push> corralPushes = new ArrayList<>();
     ArrayList<Box> boxes = state.getBoxPositions();
-    //ArrayList<Box> toCheck = new ArrayList<>();
 
     boolean isCorral = false;
     for(int i = 0; i < height; i++) {
@@ -684,27 +612,17 @@ public class SokoBot {
         if(reachTiles[i][j] < this.reachTiles.getStamp()) {
           isCorral = true;
           corralTilesArr[i][j] = true;
-          //System.out.print("O");
         }
         else {
           corralTilesArr[i][j] = false;
-          //System.out.print(".");
         }
       }
-      //System.out.println();
     }
 
     if(!isCorral) {
       System.out.println("no unreachable tile detected");
       return validPushes;
     }
-
-//    for (int i = 0; i < boxes.size(); i++)
-//    {
-//      if (!corralTilesArr[boxes.get(i).boxPos().y()][boxes.get(i).boxPos().x()])
-//        toCheck.add(boxes.get(i));
-//
-//    }
 
     // Check if all possible pushes of the boxes on the corral barrier are pushes into the corral and that all adj boxes are accessible
 
@@ -713,7 +631,6 @@ public class SokoBot {
     boolean isPICorral = true;
     boolean isAllOnGoal = true;
 
-    //for(Box box : toCheck)
     for(Box box : boxes)
     {
       Pos boxPos = box.boxPos();
@@ -735,12 +652,6 @@ public class SokoBot {
             corralPushes.add(validPush);
         }
       }
-
-//      if(isAdj && !hasValidPush) {
-//        isPICorral = false;
-//        System.out.println("Unreachable boundary box of corral detected!");
-//        return validPushes;
-//      }
 
       if(isAdj && !hasValidPush && reachTiles[boxPos.y()][boxPos.x()] == this.reachTiles.getStamp() + 1) {
         isPICorral = false;
@@ -775,44 +686,6 @@ public class SokoBot {
         break;
       }
     }
-
-//    for(Push validPush : validPushes) {
-//      Pos boxPos = state.getBoxPositions().get(validPush.id()).boxPos();
-//      char dir = validPush.dir();
-//      boolean isAdj = false;
-//
-//      if(corralTilesArr[boxPos.y() - 1][boxPos.x()])
-//        isAdj = true;
-//      if(corralTilesArr[boxPos.y() + 1][boxPos.x()])
-//        isAdj = true;
-//      if(corralTilesArr[boxPos.y()][boxPos.x() - 1])
-//        isAdj = true;
-//      if(corralTilesArr[boxPos.y()][boxPos.x() + 1])
-//        isAdj = true;
-//
-//      if(isAdj) {
-//        corralPushes.add(validPush);
-//        if(mapData[boxPos.y()][boxPos.x()] != '.') {
-//          isAllOnGoal = false;
-//        }
-//        if (dir == 'u' && !corralTilesArr[boxPos.y() - 1][boxPos.x()]) {
-//          isPICorral = false;
-//          break;
-//        }
-//        if (dir == 'd' && !corralTilesArr[boxPos.y() + 1][boxPos.x()]) {
-//          isPICorral = false;
-//          break;
-//        }
-//        if (dir == 'l' && !corralTilesArr[boxPos.y()][boxPos.x() - 1]) {
-//          isPICorral = false;
-//          break;
-//        }
-//        if (dir == 'r' && !corralTilesArr[boxPos.y()][boxPos.x() + 1]) {
-//          isPICorral = false;
-//          break;
-//        }
-//      }
-//    }
 
     if(!isPICorral) {
       System.out.println("not all pushes are towards corral");
@@ -851,20 +724,6 @@ public class SokoBot {
 
   public String solveSokobanPuzzle() {
 
-//    for (int i = 0; i < height; i++)
-//    {
-//      for (int j = 0; j < width; j++)
-//      {
-//        if (mapData[i][j] == '#')
-//          System.out.print("~");
-//        else if (deadTiles[i][j])
-//          System.out.print("x");
-//        else
-//          System.out.print("O");
-//      }
-//      System.out.println();
-//    }
-
     calculateReach(state.getPos(), state.getItemsData());
     frontiers.offer(new Board(new ArrayDeque<>(state.getPushes()), calculateHeuristic()));
     int nodes = 0;
@@ -872,40 +731,12 @@ public class SokoBot {
 
       Board curBoard = frontiers.poll();
       nodes++;
-      System.out.println("Expanding:" + curBoard.getPushes() + " , heuristic: " + curBoard.getHeuristic());
       int depth = setupBoard(curBoard);
 
       if (depth <= maxDepth) {
-        // DEBUG PRINTS
-          boolean playerPresent = false;
-          for (int j = 0; j < height; j++)
-          {
-            for (int k = 0; k < width; k++)
-            {
-              if (state.getItemsData()[j][k] == ' ')
-                System.out.print(mapData[j][k]);
-              else  {
-                if(state.getItemsData()[j][k] == '@')
-                  playerPresent = true;
-                System.out.print(state.getItemsData()[j][k]);
-              }
-            }
-            System.out.println();
-          }
-          if (!playerPresent)
-            System.out.println("HE VANISHED!");
-
         if (expand()) {
           ArrayDeque<Push> pushes = state.getPushes();
-          // System.out.println(pushes.size());
-          //System.out.println(pushes.size());
 
-
-//      while(!pushes.isEmpty())
-//      {
-//        Push push = pushes.poll();
-//        System.out.println("Box " + push.id() + " " + push.dir());
-//      }
           while (!pushes.isEmpty()) {
             calculateReach(initialState.getPos(), initialState.getItemsData());
             Push push = pushes.poll();
@@ -954,16 +785,6 @@ public class SokoBot {
         boxPositions.add(new Box(box.id(), new Pos(box.boxPos().y(), box.boxPos().x())));
     }
 
-    // figure out how to combine corrals to prevent recursive overflow
-
-
-
-
-
-
-
-
-
      return true;
 
   }
@@ -972,8 +793,3 @@ public class SokoBot {
 
 
 }
-
-
-/*
-
- */
