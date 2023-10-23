@@ -10,7 +10,6 @@ public class SokoBot {
   private final int width;
   private final int height;
   private final char[][] mapData;
-  private final char[][] emptyItemsData;
   private final long[][][] zobristTable;
   private final State state;
   private final State initialState;
@@ -23,8 +22,8 @@ public class SokoBot {
   private int maxDepth;
   private String solution;
   PriorityQueue<Board> frontiers;
-  private boolean boxesOnGoals;
-  private boolean isCombined;
+  private boolean[] toExpand;
+  private boolean[] intersection;
   public SokoBot(int width, int height, char[][] mapData, char[][] itemsData) {
 
     this.width = width;
@@ -62,6 +61,8 @@ public class SokoBot {
       }
     }
     this.numGoals = ctr;
+    this.toExpand = new boolean[goals.size()];
+    Arrays.fill(toExpand, true);
 
     Pos player = new Pos(0,0);
     for(int i = 0; i < height; i++) {
@@ -73,18 +74,13 @@ public class SokoBot {
       }
     }
 
+
+
     state = new State(player, itemsData);
 
     Pos initialPlayer = new Pos(player.x(), player.y());
     char[][] initialItemsData = Arrays.stream(itemsData).map(char[]::clone).toArray(char[][]::new);
     initialState = new State(initialPlayer, initialItemsData);
-
-    emptyItemsData = new char[height][width];
-    for(int i = 0; i < height; i ++) {
-      for(int j = 0; j < width; j++) {
-        emptyItemsData[i][j] = ' ';
-      }
-    }
 
     reachTiles = new Reach(height, width);
     clear();
@@ -300,7 +296,6 @@ public class SokoBot {
       }
     }
 
-    calculateReach(state.getPos(), emptyItemsData);
   }
 
   public Pos calculateReach(Pos start, char[][] itemsData)
@@ -644,8 +639,9 @@ public class SokoBot {
   }
   public boolean expand() {
     state.setNormal(calculateReach(state.getPos(), state.getItemsData()));
-    //ArrayList<Push> validPushes = isPiCorralled();
-    ArrayList<Push> validPushes = getValidPushes();
+    ArrayList<Push> validPushes = piCorralPruning();
+    //ArrayList<Push> validPushes = getValidPushes();
+    //System.out.println("New pushes: " + validPushes);
     for(int i = 0; i < validPushes.size(); i++) {
       state.move(validPushes.get(i));
       if(isSolved()) {
@@ -658,7 +654,7 @@ public class SokoBot {
       else {
         visitedStates.add(calculateHash());
         Board toOffer = new Board(new ArrayDeque<>(state.getPushes()), calculateHeuristic());
-        System.out.println("offering: " + state.getPushes());
+        //System.out.println("offering: " + state.getPushes());
         frontiers.offer(toOffer);
         state.unmove();
       }
@@ -877,23 +873,23 @@ public class SokoBot {
 
       if (depth <= maxDepth) {
         // DEBUG PRINTS
-          boolean playerPresent = false;
-          for (int j = 0; j < height; j++)
-          {
-            for (int k = 0; k < width; k++)
-            {
-              if (state.getItemsData()[j][k] == ' ')
-                System.out.print(mapData[j][k]);
-              else  {
-                if(state.getItemsData()[j][k] == '@')
-                  playerPresent = true;
-                System.out.print(state.getItemsData()[j][k]);
-              }
-            }
-            System.out.println();
-          }
-          if (!playerPresent)
-            System.out.println("HE VANISHED!");
+//          boolean playerPresent = false;
+//          for (int j = 0; j < height; j++)
+//          {
+//            for (int k = 0; k < width; k++)
+//            {
+//              if (state.getItemsData()[j][k] == ' ')
+//                System.out.print(mapData[j][k]);
+//              else  {
+//                if(state.getItemsData()[j][k] == '@')
+//                  playerPresent = true;
+//                System.out.print(state.getItemsData()[j][k]);
+//              }
+//            }
+//            System.out.println();
+//          }
+//          if (!playerPresent)
+//            System.out.println("HE VANISHED!");
 
         if (expand()) {
           ArrayDeque<Push> pushes = state.getPushes();
@@ -937,159 +933,246 @@ public class SokoBot {
 
   public ArrayList<Push> piCorralPruning()
   {
-    ArrayList<Push> validPushes = getValidPushes();
-
-
-
-
-
-
-
-
-
-    return validPushes; // no Pi-corral found!!!
-  }
-
-
-  public boolean isPiCorral(Pos floor, ArrayList<Push> validPushes)
-  {
-
-    calculateReach(floor, state.getItemsData()); // calculate reach inside corral
-    ArrayList<Box> corralBoxPositions = new ArrayList<>();
-    int[][] tiles = reachTiles.getTiles();
+    ArrayList<Push> validPushes = getValidPushes(); // need the original valid pushes for checking
+    Arrays.fill(toExpand, false); // set all boxes to expand as false to check for pi corral pruning
+    //System.out.println("Inside piCorralPruning!");
+    ArrayList<Box> boxes = state.getBoxPositions();
+    int[][] tiles = Arrays.stream(reachTiles.getTiles()).map(int[]::clone).toArray(int[][]::new);
     int stamp = reachTiles.getStamp();
-    char[][] itemsData = state.getItemsData();
+    boolean atLeastOnePiCorral = false;
 
-    ArrayList<Box> boxPositions = state.getBoxPositions();// get box positions inside corral
-    for (int i = 0, boxPositionsSize = boxPositions.size(); i < boxPositionsSize; i++)
+    //System.out.println("valid pushes: " + validPushes);
+    for (Push push: validPushes)
     {
-      Box box = boxPositions.get(i);
-      if (tiles[box.boxPos().y()][box.boxPos().x()] == stamp + 1)
-        corralBoxPositions.add(box);
-
-    }
-
-    calculateReach(state.getPos(), state.getItemsData());
-    for (int i = 0; i < corralBoxPositions.size(); i++) // check if all pushes of the corral boxes are inside the corral;
-    {
-      Box corralBox = corralBoxPositions.get(i);
-      for (Push push : validPushes)
+      //System.out.println("Push to check for pi-corral " + push);
+      if (push.dir() == 'u')
       {
-        if (corralBox.id() == push.id())
-        {
-          if (push.dir() == 'u')
+        if (tiles[boxes.get(push.id()).boxPos().y()+1][boxes.get(push.id()).boxPos().x()] < stamp) { // if where the box will be pushed is a corral
+          //System.out.println("up box will be pushed to corral");
+          if (isPiCorral(new Pos(boxes.get(push.id()).boxPos().x(), boxes.get(push.id()).boxPos().y()-1), validPushes))
           {
-            if (!(tiles[corralBox.boxPos().y()-1][corralBox.boxPos().x()] == stamp))
-              return false;
+            atLeastOnePiCorral = true;
+            //System.out.println("Push: " + push + ", pi-corral detected!");
           }
-          if (push.dir() == 'd')
-          {
-            if (!(tiles[corralBox.boxPos().y()+1][corralBox.boxPos().x()] == stamp))
-              return false;
-          }
-          if (push.dir() == 'l')
-          {
-            if (!(tiles[corralBox.boxPos().y()][corralBox.boxPos().x()-1] == stamp))
-              return false;
-          }
-          if (push.dir() == 'r')
-          {
-            if (!(tiles[corralBox.boxPos().y()][corralBox.boxPos().x()+1] == stamp))
-              return false;
+          //else System.out.println("No pi-corral detected!");
+        }
 
+      }
+      else if (push.dir() == 'd')
+      {
+        if (tiles[boxes.get(push.id()).boxPos().y()-1][boxes.get(push.id()).boxPos().x()] < stamp) {
+          //System.out.println("down box will be pushed to corral");
+          if (isPiCorral(new Pos(boxes.get(push.id()).boxPos().x(), boxes.get(push.id()).boxPos().y()+1), validPushes))
+          {
+            atLeastOnePiCorral = true;
+            //System.out.println("Push: " + push + ", pi-corral detected!");
           }
+          //else System.out.println("No pi-corral detected!");
         }
 
       }
 
-    }
-     return true;
+      else if (push.dir() == 'l') {
+        if (tiles[boxes.get(push.id()).boxPos().y()][boxes.get(push.id()).boxPos().x() - 1] < stamp) {
+          //System.out.println("left box will be pushed to corral");
+          if (isPiCorral(new Pos(boxes.get(push.id()).boxPos().x() - 1, boxes.get(push.id()).boxPos().y()), validPushes))
+          {
+            atLeastOnePiCorral = true;
+            //System.out.println("Push: " + push + ", pi-corral detected!");
+          }
+          //else System.out.println("No pi-corral detected!");
+        }
+      }
 
-  }
-
-  public ArrayList<Push> piCorralPushes(ArrayList<Box> boxPositions) {
-    Pos playerPos = state.getPos();
-    ArrayList<Push> validPushes = new ArrayList<>();
-
-    for(Box box : boxPositions) {
-      //System.out.println("Box " + box.id() + " " + box.boxPos().x() + " " + box.boxPos().y());
-      if(reachTiles.getTiles()[box.boxPos().y()][box.boxPos().x()] == reachTiles.getStamp() + 1)
+      else if (push.dir() == 'r')
       {
-
-        // check up
-        //System.out.println("checking taas!");
-        if(reachTiles.getTiles()[box.boxPos().y() + 1][box.boxPos().x()] == reachTiles.getStamp() && mapData[box.boxPos().y() - 1][box.boxPos().x()] != '#' && state.getItemsData()[box.boxPos().y()-1][box.boxPos().x()] != '$' && !deadTiles[box.boxPos().y()-1][box.boxPos().x()]) {
-          state.getItemsData()[playerPos.y()][playerPos.x()] = ' '; //clear player
-          state.getItemsData()[box.boxPos().y()][box.boxPos().x()] = '@'; //replace with player
-          state.getItemsData()[box.boxPos().y() - 1][box.boxPos().x()] = '$'; //move box
-
-          if (isSolvable(new Pos(box.boxPos().x(), box.boxPos().y() - 1))) {
-            validPushes.add(new Push(box.id(), 'u'));
-          } //else System.out.println("freeze deadlock!");
-          state.getItemsData()[playerPos.y()][playerPos.x()] = '@'; //add player back
-          state.getItemsData()[box.boxPos().y()][box.boxPos().x()] = '$'; //add box back
-          state.getItemsData()[box.boxPos().y() - 1][box.boxPos().x()] = ' '; //remove box
-
-        } // else System.out.println("wall, crate, or deadtile encountered");
-        // check down
-        // System.out.println("checking baba!");
-        if(reachTiles.getTiles()[box.boxPos().y() - 1][box.boxPos().x()] == reachTiles.getStamp() && mapData[box.boxPos().y() + 1][box.boxPos().x()] != '#' && state.getItemsData()[box.boxPos().y() + 1][box.boxPos().x()] != '$' && !deadTiles[box.boxPos().y() + 1][box.boxPos().x()])
-        {
-          state.getItemsData()[playerPos.y()][playerPos.x()] = ' '; //clear player
-          state.getItemsData()[box.boxPos().y()][box.boxPos().x()] = '@'; //replace with player
-          state.getItemsData()[box.boxPos().y() + 1][box.boxPos().x()] = '$'; //move box
-
-          if (isSolvable(new Pos(box.boxPos().x(), box.boxPos().y() + 1))) {
-            validPushes.add(new Push(box.id(), 'd'));
-          } // else System.out.println("freeze deadlock!");
-
-          state.getItemsData()[playerPos.y()][playerPos.x()] = '@'; //clear player
-          state.getItemsData()[box.boxPos().y()][box.boxPos().x()] = '$'; //replace with player
-          state.getItemsData()[box.boxPos().y() + 1][box.boxPos().x()] = ' '; //move box
-        } // else System.out.println("wall, crate, or deadtile encountered");
-        // check left
-        // System.out.println("checking kaliwa!");
-        if(reachTiles.getTiles()[box.boxPos().y()][box.boxPos().x() + 1] == reachTiles.getStamp() && mapData[box.boxPos().y()][box.boxPos().x() - 1] != '#' && state.getItemsData()[box.boxPos().y()][box.boxPos().x() - 1] != '$' && !deadTiles[box.boxPos().y()][box.boxPos().x() - 1])
-        {
-          state.getItemsData()[playerPos.y()][playerPos.x()] = ' '; //clear player
-          state.getItemsData()[box.boxPos().y()][box.boxPos().x()] = '@'; //replace with player
-          state.getItemsData()[box.boxPos().y()][box.boxPos().x() - 1] = '$'; //move box
-
-          if (isSolvable(new Pos(box.boxPos().x() - 1, box.boxPos().y()))) {
-            validPushes.add(new Push(box.id(), 'l'));
-          } // else System.out.println("freeze deadlock!");
-          state.getItemsData()[playerPos.y()][playerPos.x()] = '@'; //clear player
-          state.getItemsData()[box.boxPos().y()][box.boxPos().x()] = '$'; //replace with player
-          state.getItemsData()[box.boxPos().y()][box.boxPos().x() - 1] = ' '; //move box
-        } // else System.out.println("wall, crate, or deadtile encountered");
-        // check right
-        // System.out.println("checking kanan!");
-        if(reachTiles.getTiles()[box.boxPos().y()][box.boxPos().x() - 1] == reachTiles.getStamp() && mapData[box.boxPos().y()][box.boxPos().x() + 1] != '#' && state.getItemsData()[box.boxPos().y()][box.boxPos().x() + 1] != '$' && !deadTiles[box.boxPos().y()][box.boxPos().x() + 1])
-        {
-          state.getItemsData()[playerPos.y()][playerPos.x()] = ' '; //clear player
-          state.getItemsData()[box.boxPos().y()][box.boxPos().x()] = '@'; //replace with player
-          state.getItemsData()[box.boxPos().y()][box.boxPos().x() + 1] = '$'; //move box
-
-          if (isSolvable(new Pos(box.boxPos().x() + 1, box.boxPos().y()))) {
-            validPushes.add(new Push(box.id(), 'r'));
-          } // else System.out.println("freeze deadlock!");
-          state.getItemsData()[playerPos.y()][playerPos.x()] = '@'; //clear player
-          state.getItemsData()[box.boxPos().y()][box.boxPos().x()] = '$'; //replace with player
-          state.getItemsData()[box.boxPos().y()][box.boxPos().x() + 1] = ' '; //move box
-        } // else System.out.println("wall, crate, or deadtile encountered");
-      } // else System.out.println("box is unreachable");
-      // System.out.println();
+        if (tiles[boxes.get(push.id()).boxPos().y()+1][boxes.get(push.id()).boxPos().x()+1] < stamp) {
+          //System.out.println("right box will be pushed to corral");
+          if (isPiCorral(new Pos(boxes.get(push.id()).boxPos().x()+1, boxes.get(push.id()).boxPos().y()), validPushes))
+          {
+            atLeastOnePiCorral = true;
+            //System.out.println("Push: " + push + ", pi-corral detected!");
+          }
+          //else System.out.println("No pi-corral detected!");
+        }
+      }
     }
 
-    return validPushes;
+    if (atLeastOnePiCorral)
+    {
+      //System.out.println("At least one Pi-corral found!");
+      for (int i = 0, boxPositionsSize = boxes.size(); i < boxPositionsSize; i++)
+      {
+        if (toExpand[i])
+          boxes.set(i, new Box(boxes.get(i).id(), boxes.get(i).boxPos(), true));
+        else
+          boxes.set(i, new Box(boxes.get(i).id(), boxes.get(i).boxPos(), false));
+      }
+      calculateReach(state.getPos(), state.getItemsData());
+      ArrayList<Push> toReturn = getValidPushes();
+      bringBACKTHEBOXES();
+      return toReturn;
+    }
+    else
+    {
+      //System.out.println("No pi-corral found!");
+      return validPushes; // no Pi-corral found!!!
+    }
+
+
   }
 
+  public boolean isPiCorral(Pos floor, ArrayList<Push> validPushes) {
+
+    calculateReach(floor, state.getItemsData()); // calculate reach inside corral
+
+//    System.out.println("Reach inside corral");
+//    for (int i = 0; i < height; i++)
+//    {
+//      for (int j = 0; j < width; j++)
+//      {
+//        if (reachTiles.getTiles()[i][j] == Integer.MAX_VALUE)
+//          System.out.print("+");
+//        else
+//          System.out.print(reachTiles.getTiles()[i][j]);
+//      }
+//      System.out.println();
+//    }
 
 
+    int[][] tiles = reachTiles.getTiles();
+    int stamp = reachTiles.getStamp();
+    char[][] itemsData = state.getItemsData();
+    boolean areAllBoxesOnGoal = true;
+    ArrayList<Box> boxPositions = state.getBoxPositions();// get box positions
+    for (int i = 0, boxPositionsSize = boxPositions.size(); i < boxPositionsSize; i++)
+    {
+      Box box = boxPositions.get(i);
+      //System.out.println(box);
+      if (!(tiles[box.boxPos().y()][box.boxPos().x()] == stamp + 1))
+      {
+        state.getBoxPositions().set(box.id(), new Box(box.id(), box.boxPos(), false)); // set toExpand as false as it is not part of corral
+        itemsData[box.boxPos().y()][box.boxPos().x()] = ' '; // remove temporarily
+        //System.out.println("Box not part of corral");
+      }
+      else
+      {
+        //System.out.println("Box part of corral");
+        if (mapData[box.boxPos().y()][box.boxPos().x()] != '.')
+          areAllBoxesOnGoal = false;
+      }
+    }
+
+    if (areAllBoxesOnGoal)
+    {
+     //System.out.println("All boxes are on goals!");
+      bringBACKTHEBOXES();
+      return false;
+    }
+
+
+
+    calculateReach(state.getPos(), state.getItemsData()); // calculate reach again
+//    System.out.println("Reach outside corral");
+//    for (int i = 0; i < height; i++)
+//    {
+//      for (int j = 0; j < width; j++)
+//      {
+//        if (reachTiles.getTiles()[i][j] == Integer.MAX_VALUE)
+//          System.out.print("+");
+//        else
+//          System.out.print(reachTiles.getTiles()[i][j]);
+//      }
+//      System.out.println();
+//    }
+    ArrayList<Push> corralPushes = getValidPushes(); // get valid pushes of corral boxes
+    //System.out.println("Corral pushes: " + corralPushes);
+
+    for (Push push : corralPushes) // check if all pushes of the corral boxes are inwards
+    {
+      Box corralBox = state.getBoxPositions().get(push.id());
+      if (push.dir() == 'u')
+      {
+        if (!(tiles[corralBox.boxPos().y()-1][corralBox.boxPos().x()] == stamp))
+        {
+          bringBACKTHEBOXES(); // reset board to original state
+          return false; // a boundary box can open up the corral!!!
+        }
+
+      }
+      else if (push.dir() == 'd')
+      {
+        if (!(tiles[corralBox.boxPos().y()+1][corralBox.boxPos().x()] == stamp))
+        {
+          bringBACKTHEBOXES();
+          return false;
+        }
+
+      }
+      else if (push.dir() == 'l')
+      {
+        if (!(tiles[corralBox.boxPos().y()][corralBox.boxPos().x()-1] == stamp))
+        {
+          bringBACKTHEBOXES();
+          return false;
+        }
+
+      }
+      else if (push.dir() == 'r')
+      {
+        if (!(tiles[corralBox.boxPos().y()][corralBox.boxPos().x()+1] == stamp))
+        {
+          bringBACKTHEBOXES();
+          return false;
+        }
+
+      }
+    }
+
+    int ctr = 0; // check if the corral pushes are present in the valid pushes of the original state
+
+    for (Push corralPush: corralPushes)
+    {
+      for (Push push: validPushes)
+      {
+        if (corralPush.equals(push))
+          ctr++;
+      }
+    }
+
+    if (ctr != corralPushes.size())
+    {
+      //System.out.println("player cannot perform all inwards moves!");
+      bringBACKTHEBOXES();
+      return false; // not all inwards pushes are valid moves!!!
+    }
+    //else System.out.println("player can perform all inwards moves!");
+
+    for (Box box: state.getBoxPositions())
+    {
+      if (box.toExpand())
+        toExpand[box.id()] = true; // set boxes for expansion!
+    }
+    bringBACKTHEBOXES();// reset the board to original state
+    return true; // the boxes are involved in a pi-corral!!!
+
+  }
+  public void bringBACKTHEBOXES()
+  {
+
+    char[][] itemsData = state.getItemsData();
+
+    ArrayList<Box> boxPositions = state.getBoxPositions();
+    for (int i = 0, boxPositionsSize = boxPositions.size(); i < boxPositionsSize; i++) {
+      Box box = boxPositions.get(i);
+      if (!box.toExpand())
+      {
+        state.getBoxPositions().set(box.id(), new Box(box.id(), box.boxPos(), true));
+        itemsData[box.boxPos().y()][box.boxPos().x()] = '$'; // return the box
+      }
+
+    }
+
+  }
 
 }
-
-
-/*
-
- */
