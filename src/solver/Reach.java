@@ -9,7 +9,6 @@ public class Reach
     {
         this.tiles = new int[height][width];
     }
-
     public Pos getMin() {
         return min;
     }
