@@ -508,6 +508,7 @@ public class SokoBot {
 
     for(Box box : boxPositions) {
       //System.out.println("Box " + box.id() + " " + box.boxPos().x() + " " + box.boxPos().y());
+      if(box.toExpand())
       if(reachTiles.getTiles()[box.boxPos().y()][box.boxPos().x()] == reachTiles.getStamp() + 1)
       {
 
@@ -582,47 +583,46 @@ public class SokoBot {
   public int setupBoard(Board board) {
     ArrayDeque<Push> boardPushes = board.getPushes();
 
-    state.setState(new Pos(initialState.getPos().x(), initialState.getPos().y()), initialState.getItemsData());
-    int depth = 0;
-    while(!boardPushes.isEmpty()) {
-      state.move(boardPushes.poll());
-      depth++;
+//    state.setState(new Pos(initialState.getPos().x(), initialState.getPos().y()), initialState.getItemsData());
+//    int depth = 0;
+//    while(!boardPushes.isEmpty()) {
+//      state.move(boardPushes.poll());
+//      depth++;
+//    }
+//
+//    return depth;
+
+    ArrayDeque<Push> statePushes = state.getPushes();
+    ArrayDeque<Push> newStatePushes = new ArrayDeque<>(200);
+
+    while (!boardPushes.isEmpty() && !statePushes.isEmpty())
+    {
+      Push boardPush = boardPushes.poll();
+      Push statePush = statePushes.poll();
+
+      if (!boardPush.equals(statePush))
+      {
+        boardPushes.offerFirst(boardPush);
+        statePushes.offerFirst(statePush);
+        break;
+      }
+      else
+        newStatePushes.offer(boardPush);
     }
 
-    return depth;
+    while (!statePushes.isEmpty())
+    {
+      state.unmove();
+    }
 
-//    ArrayDeque<Push> statePushes = state.getPushes();
-//    ArrayDeque<Push> newStatePushes = new ArrayDeque<>(200);
-//
-//    while (!boardPushes.isEmpty() && !statePushes.isEmpty())
-//    {
-//      Push boardPush = boardPushes.poll();
-//      Push statePush = statePushes.poll();
-//
-//      if (!boardPush.equals(statePush))
-//      {
-//        boardPushes.offerFirst(boardPush);
-//        statePushes.offerFirst(statePush);
-//        break;
-//      }
-//      else
-//        newStatePushes.offer(new Push(boardPush.id(), boardPush.dir()));
-//    }
-//
-//    while (!statePushes.isEmpty())
-//    {
-//      state.unmove();
-//    }
-//
-//    state.setPushes(newStatePushes);
-//
-//    while (!boardPushes.isEmpty())
-//    {
-//      state.move(boardPushes.poll());
-//    }
-//    state.setNormal(calculateReach(state.getPos(), state.getItemsData()));
-//
-//    return state.getPushes().size();
+    state.setPushes(newStatePushes);
+
+    while (!boardPushes.isEmpty())
+    {
+      state.move(boardPushes.poll());
+    }
+    state.setNormal(calculateReach(state.getPos(), state.getItemsData()));
+    return state.getPushes().size();
 
   }
 
@@ -935,37 +935,153 @@ public class SokoBot {
     return "uuuuuuu";
   }
 
-  public boolean PiCorralPruning(int depth, Pos floor, int low)
+  public ArrayList<Push> piCorralPruning()
+  {
+    ArrayList<Push> validPushes = getValidPushes();
+
+
+
+
+
+
+
+
+
+    return validPushes; // no Pi-corral found!!!
+  }
+
+
+  public boolean isPiCorral(Pos floor, ArrayList<Push> validPushes)
   {
 
-    calculateReach(floor, state.getItemsData());
+    calculateReach(floor, state.getItemsData()); // calculate reach inside corral
+    ArrayList<Box> corralBoxPositions = new ArrayList<>();
+    int[][] tiles = reachTiles.getTiles();
     int stamp = reachTiles.getStamp();
-    if (low > stamp)
-      return false;
-    boxesOnGoals = true;
-    isCombined = false;
+    char[][] itemsData = state.getItemsData();
 
-    int[][] corralTiles = Arrays.stream(reachTiles.getTiles()).map(int[]::clone).toArray(int[][]::new);
-    ArrayList<Box> boxPositions = new ArrayList<>();
-
-    for (Box box: state.getBoxPositions())
+    ArrayList<Box> boxPositions = state.getBoxPositions();// get box positions inside corral
+    for (int i = 0, boxPositionsSize = boxPositions.size(); i < boxPositionsSize; i++)
     {
-      if(corralTiles[box.boxPos().y()][box.boxPos().x()] == stamp + 1)
-        boxPositions.add(new Box(box.id(), new Pos(box.boxPos().y(), box.boxPos().x())));
+      Box box = boxPositions.get(i);
+      if (tiles[box.boxPos().y()][box.boxPos().x()] == stamp + 1)
+        corralBoxPositions.add(box);
+
     }
 
-    // figure out how to combine corrals to prevent recursive overflow
+    calculateReach(state.getPos(), state.getItemsData());
+    for (int i = 0; i < corralBoxPositions.size(); i++) // check if all pushes of the corral boxes are inside the corral;
+    {
+      Box corralBox = corralBoxPositions.get(i);
+      for (Push push : validPushes)
+      {
+        if (corralBox.id() == push.id())
+        {
+          if (push.dir() == 'u')
+          {
+            if (!(tiles[corralBox.boxPos().y()-1][corralBox.boxPos().x()] == stamp))
+              return false;
+          }
+          if (push.dir() == 'd')
+          {
+            if (!(tiles[corralBox.boxPos().y()+1][corralBox.boxPos().x()] == stamp))
+              return false;
+          }
+          if (push.dir() == 'l')
+          {
+            if (!(tiles[corralBox.boxPos().y()][corralBox.boxPos().x()-1] == stamp))
+              return false;
+          }
+          if (push.dir() == 'r')
+          {
+            if (!(tiles[corralBox.boxPos().y()][corralBox.boxPos().x()+1] == stamp))
+              return false;
 
+          }
+        }
 
+      }
 
-
-
-
-
-
-
+    }
      return true;
 
+  }
+
+  public ArrayList<Push> piCorralPushes(ArrayList<Box> boxPositions) {
+    Pos playerPos = state.getPos();
+    ArrayList<Push> validPushes = new ArrayList<>();
+
+    for(Box box : boxPositions) {
+      //System.out.println("Box " + box.id() + " " + box.boxPos().x() + " " + box.boxPos().y());
+      if(reachTiles.getTiles()[box.boxPos().y()][box.boxPos().x()] == reachTiles.getStamp() + 1)
+      {
+
+        // check up
+        //System.out.println("checking taas!");
+        if(reachTiles.getTiles()[box.boxPos().y() + 1][box.boxPos().x()] == reachTiles.getStamp() && mapData[box.boxPos().y() - 1][box.boxPos().x()] != '#' && state.getItemsData()[box.boxPos().y()-1][box.boxPos().x()] != '$' && !deadTiles[box.boxPos().y()-1][box.boxPos().x()]) {
+          state.getItemsData()[playerPos.y()][playerPos.x()] = ' '; //clear player
+          state.getItemsData()[box.boxPos().y()][box.boxPos().x()] = '@'; //replace with player
+          state.getItemsData()[box.boxPos().y() - 1][box.boxPos().x()] = '$'; //move box
+
+          if (isSolvable(new Pos(box.boxPos().x(), box.boxPos().y() - 1))) {
+            validPushes.add(new Push(box.id(), 'u'));
+          } //else System.out.println("freeze deadlock!");
+          state.getItemsData()[playerPos.y()][playerPos.x()] = '@'; //add player back
+          state.getItemsData()[box.boxPos().y()][box.boxPos().x()] = '$'; //add box back
+          state.getItemsData()[box.boxPos().y() - 1][box.boxPos().x()] = ' '; //remove box
+
+        } // else System.out.println("wall, crate, or deadtile encountered");
+        // check down
+        // System.out.println("checking baba!");
+        if(reachTiles.getTiles()[box.boxPos().y() - 1][box.boxPos().x()] == reachTiles.getStamp() && mapData[box.boxPos().y() + 1][box.boxPos().x()] != '#' && state.getItemsData()[box.boxPos().y() + 1][box.boxPos().x()] != '$' && !deadTiles[box.boxPos().y() + 1][box.boxPos().x()])
+        {
+          state.getItemsData()[playerPos.y()][playerPos.x()] = ' '; //clear player
+          state.getItemsData()[box.boxPos().y()][box.boxPos().x()] = '@'; //replace with player
+          state.getItemsData()[box.boxPos().y() + 1][box.boxPos().x()] = '$'; //move box
+
+          if (isSolvable(new Pos(box.boxPos().x(), box.boxPos().y() + 1))) {
+            validPushes.add(new Push(box.id(), 'd'));
+          } // else System.out.println("freeze deadlock!");
+
+          state.getItemsData()[playerPos.y()][playerPos.x()] = '@'; //clear player
+          state.getItemsData()[box.boxPos().y()][box.boxPos().x()] = '$'; //replace with player
+          state.getItemsData()[box.boxPos().y() + 1][box.boxPos().x()] = ' '; //move box
+        } // else System.out.println("wall, crate, or deadtile encountered");
+        // check left
+        // System.out.println("checking kaliwa!");
+        if(reachTiles.getTiles()[box.boxPos().y()][box.boxPos().x() + 1] == reachTiles.getStamp() && mapData[box.boxPos().y()][box.boxPos().x() - 1] != '#' && state.getItemsData()[box.boxPos().y()][box.boxPos().x() - 1] != '$' && !deadTiles[box.boxPos().y()][box.boxPos().x() - 1])
+        {
+          state.getItemsData()[playerPos.y()][playerPos.x()] = ' '; //clear player
+          state.getItemsData()[box.boxPos().y()][box.boxPos().x()] = '@'; //replace with player
+          state.getItemsData()[box.boxPos().y()][box.boxPos().x() - 1] = '$'; //move box
+
+          if (isSolvable(new Pos(box.boxPos().x() - 1, box.boxPos().y()))) {
+            validPushes.add(new Push(box.id(), 'l'));
+          } // else System.out.println("freeze deadlock!");
+          state.getItemsData()[playerPos.y()][playerPos.x()] = '@'; //clear player
+          state.getItemsData()[box.boxPos().y()][box.boxPos().x()] = '$'; //replace with player
+          state.getItemsData()[box.boxPos().y()][box.boxPos().x() - 1] = ' '; //move box
+        } // else System.out.println("wall, crate, or deadtile encountered");
+        // check right
+        // System.out.println("checking kanan!");
+        if(reachTiles.getTiles()[box.boxPos().y()][box.boxPos().x() - 1] == reachTiles.getStamp() && mapData[box.boxPos().y()][box.boxPos().x() + 1] != '#' && state.getItemsData()[box.boxPos().y()][box.boxPos().x() + 1] != '$' && !deadTiles[box.boxPos().y()][box.boxPos().x() + 1])
+        {
+          state.getItemsData()[playerPos.y()][playerPos.x()] = ' '; //clear player
+          state.getItemsData()[box.boxPos().y()][box.boxPos().x()] = '@'; //replace with player
+          state.getItemsData()[box.boxPos().y()][box.boxPos().x() + 1] = '$'; //move box
+
+          if (isSolvable(new Pos(box.boxPos().x() + 1, box.boxPos().y()))) {
+            validPushes.add(new Push(box.id(), 'r'));
+          } // else System.out.println("freeze deadlock!");
+          state.getItemsData()[playerPos.y()][playerPos.x()] = '@'; //clear player
+          state.getItemsData()[box.boxPos().y()][box.boxPos().x()] = '$'; //replace with player
+          state.getItemsData()[box.boxPos().y()][box.boxPos().x() + 1] = ' '; //move box
+        } // else System.out.println("wall, crate, or deadtile encountered");
+      } // else System.out.println("box is unreachable");
+      // System.out.println();
+    }
+
+    return validPushes;
   }
 
 

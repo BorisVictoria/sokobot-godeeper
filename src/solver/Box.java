@@ -1,5 +1,5 @@
 package solver;
 
-public record Box(int id, Pos boxPos)
+public record Box(int id, Pos boxPos, boolean toExpand)
 {
 }
