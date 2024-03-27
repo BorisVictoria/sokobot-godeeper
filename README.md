@@ -2,13 +2,13 @@ There are two modes in this program: Freeplay mode and SokoBot Mode. In Freeplay
 
 To run the freeplay mode, open the directory in the commandline and type:
 
-freeplay <name>
+freeplay "name"
 
 Ex. freeplay testlevel
 
 To run the sokobot mode, type:
 
-sokobot <name>
+sokobot "name"
 
 Ex. sokobot testlevel
 
